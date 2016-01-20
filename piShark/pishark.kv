@@ -1,0 +1,46 @@
+#:kivy 1.0.9
+
+<MainWidget>:
+	BoxLayout:
+		size: root.size
+		padding: 10
+		spacing:25
+
+
+		BoxLayout:
+			size_hint: 0.3,1
+			orientation:'vertical'
+			spacing:30			
+
+			BoxLayout:
+				orientation:'vertical'
+				spacing: 5
+				Label
+					text:"Choose Protocol"
+				ToggleButton:
+					text: "MMS"
+					group: "g1"
+				ToggleButton:
+					text: "Goose"
+					group: "g1"
+				ToggleButton:
+					text: "SV"
+					group: "g1"
+
+			BoxLayout:
+				orientation:'vertical'
+				spacing: 10
+				Button:
+					text: "Start"
+				Button:
+					text: "Stop"
+
+		BoxLayout:
+			orientation:'vertical'
+
+
+			Label:
+				size_hint: None, 0.135
+				text: "PiShark 0.0.1"
+			Button:
+				text:"This is where the data will come"
