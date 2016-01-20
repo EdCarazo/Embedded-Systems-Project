@@ -1,4 +1,5 @@
-
+import binascii
+import socket
 import getopt, sys
 import dpkt, pcap
 
@@ -23,13 +24,24 @@ def main():
     try:
         print 'listening on %s: %s' % (pc.name, pc.filter)
         for ts, pkt in pc:
-            print ts, `decode(pkt)`
-	    packet = decode(pkt)
-	    s = str(packet)
-	    f.write(str(ts))
-	    f.write('\t')
-	    f.write(s)
-	    f.write('\n')
+		print ts, `decode(pkt)`
+		eth = dpkt.ethernet.Ethernet(pkt)
+		ip = eth.data
+		if ip.p == dpkt.ip.IP_PROTO_ICMP:
+			print "PING!!"
+		tcp = ip.data
+		
+#		ip = s.data
+		print socket.inet_ntoa(ip.src), '\t', socket.inet_ntoa(ip.dst), '\t', tcp.data.id
+#		t			
+#		print i.data.id
+
+	    #packet = decode(pkt)
+	    #s = str(packet)
+	    #f.write(str(ts))
+	    #f.write('\t')
+	    #f.write(s)
+	    #f.write('\n')
     except KeyboardInterrupt:
         nrecv, ndrop, nifdrop = pc.stats()
         print '\n%d packets received by filter' % nrecv
@@ -37,3 +49,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
