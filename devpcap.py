@@ -3,6 +3,10 @@ import socket
 import getopt, sys
 import dpkt, pcap
 
+PROTO_GOOSE = 0x88BB
+PROTO_SV = 0x88BA
+PROTO_IP4 = 0x8000
+
 def usage():
 	print >>sys.stderr, 'usage: %s [-i device] [pattern]' % sys.argv[0]
 	sys.exit(1)
@@ -26,17 +30,34 @@ def main():
 		for ts, pkt in pc:
 			print ts, `decode(pkt)`
 			eth = dpkt.ethernet.Ethernet(pkt)
-			ip = eth.data
-			ip_filter = 0
+
+			addr_filter = 0			
 			
-			if ip_filter != 0:
-				_ip_filter = socket.inet_aton(ip_filter)
+			# here get pipe parameters
+			# 
 			
-			if ip.p == dpkt.ip.IP_PROTO_ICMP:
-				print "PING!!"
-			elif (ip.p == dpkt.ip.IP_PROTO_TCP) and (ip_filter == 0 or (_ip_filter == ip.dst or _ip_filter == ip.src )):
-				tcp = ip.data
-				pipe_message = socket.inet_ntoa(ip.src),';', socket.inet_ntoa(ip.dst),';',ip.ttl,';',tcp.sport,';',tcp.dport,';',tcp.data.id,'\n'
+			if eth.type == PROTO_IP4:
+				ip = eth.data
+			
+				if addr_filter != 0:
+					_addr_filter = socket.inet_aton(ip_filter)
+
+				if ip.p == dpkt.ip.IP_PROTO_ICMP:
+					print "PING!!"
+			
+				elif (ip.p == dpkt.ip.IP_PROTO_TCP) and (addr_filter == 0 or (_addr_filter == ip.dst or _addr_filter == ip.src )):
+					tcp = ip.data
+					pipe_message = socket.inet_ntoa(ip.src),';', socket.inet_ntoa(ip.dst),';',ip.ttl,';',tcp.sport,';',tcp.dport,';',tcp.data.id,'\n'
+					print pipe_message				
+			
+			elif eth.type == PROTO_GOOSE:
+				goose = eth.data
+				
+				if addr_filter != 0:
+					_addr_filter = 0
+				
+			elif eth.type == PROTO_SV:
+				sv = eth.data
 				
 			print socket.inet_ntoa(ip.src), '\t', socket.inet_ntoa(ip.dst), '\t', tcp.data.id
 
