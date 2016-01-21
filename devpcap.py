@@ -36,7 +36,7 @@ def main():
 				print "PING!!"
 			elif (ip.p == dpkt.ip.IP_PROTO_TCP) and (ip_filter == 0 or (_ip_filter == ip.dst or _ip_filter == ip.src )):
 				tcp = ip.data
-				pipe_message = socket.inet_ntoa(ip.src),';', socket.inet_ntoa(ip.dst),';',ip.ttl,';',tcp.sport,';',tcp.dport,'\n'
+				pipe_message = socket.inet_ntoa(ip.src),';', socket.inet_ntoa(ip.dst),';',ip.ttl,';',tcp.sport,';',tcp.dport,';',tcp.data.id,'\n'
 				
 			print socket.inet_ntoa(ip.src), '\t', socket.inet_ntoa(ip.dst), '\t', tcp.data.id
 
