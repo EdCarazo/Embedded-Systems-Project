@@ -27,14 +27,18 @@ def main():
 			print ts, `decode(pkt)`
 			eth = dpkt.ethernet.Ethernet(pkt)
 			ip = eth.data
+			ip_filter = 0
+			
+			if ip_filter != 0:
+				_ip_filter = socket.inet_aton(ip_filter)
+			
 			if ip.p == dpkt.ip.IP_PROTO_ICMP:
 				print "PING!!"
-			tcp = ip.data
-			
-	#		ip = s.data
+			elif (ip.p == dpkt.ip.IP_PROTO_TCP) and (ip_filter == 0 or (_ip_filter == ip.dst or _ip_filter == ip.src )):
+				tcp = ip.data
+				pipe_message = socket.inet_ntoa(ip.src),';', socket.inet_ntoa(ip.dst),';',ip.ttl,';',tcp.sport,';',tcp.dport,'\n'
+				
 			print socket.inet_ntoa(ip.src), '\t', socket.inet_ntoa(ip.dst), '\t', tcp.data.id
-	#		t			
-	#		print i.data.id
 
 			#packet = decode(pkt)
 			#s = str(packet)
