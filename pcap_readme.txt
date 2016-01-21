@@ -11,6 +11,6 @@ for example
 GOOSE FILTER
  ether proto 0x88B8 
 MMS FILTER
- You cannot directly filter MMS protocols while capturing. 
+ tcp port 20
 SV
- Runs over ethernet and uses the ethenet ID 0x88BA
+ ether proto 0x88BA

@@ -3,9 +3,18 @@ import socket
 import getopt, sys
 import dpkt, pcap
 
-PROTO_GOOSE = 0x88BB
-PROTO_SV = 0x88BA
-PROTO_IP4 = 0x8000
+#PROTO_GOOSE = 0x88BB
+#PROTO_SV = 0x88BA
+#PROTO_IP4 = 0x8000
+
+# 1 = GOOSE, 2 = MMS, 3 = SV
+def apply_filter(x):
+    filterer = {
+        1: 'ether proto 0x88B8',
+        2: 'tcp port 102',
+        3: 'ether proto 0x88BA'
+    }
+    return filterer.get(x, '')
 
 def usage():
 	print >>sys.stderr, 'usage: %s [-i device] [pattern]' % sys.argv[0]
@@ -17,11 +26,15 @@ def main():
 	for o, a in opts:
 		if o == '-i': name = a
 		else: usage()
-	
+	x = 2 #Test for capping MMS
 	f = open('pcaplog.txt' , 'w')
+	z = apply_filter(x) #contains the filter string
+	
+	#f = open('pcaplog.txt' , 'w')
 		
 	pc = pcap.pcap(name)
-	pc.setfilter(' '.join(args))
+	#pc.setfilter(' '.join(args))
+	pc.setfilter(z)
 	decode = { pcap.DLT_LOOP:dpkt.loopback.Loopback,
 			   pcap.DLT_NULL:dpkt.loopback.Loopback,
 			   pcap.DLT_EN10MB:dpkt.ethernet.Ethernet }[pc.datalink()]
