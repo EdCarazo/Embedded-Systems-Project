@@ -34,27 +34,33 @@ def main():
 	z = apply_filter(x) #contains the filter string
 
 	try:
-        	os.mkfifo(writePipe)
+		os.mkfifo(writePipe)
 		os.mkfifo(readPipe)
 	except OSError:
 		pass
 		
 	pc = pcap.pcap(name)
 	#pc.setfilter(' '.join(args))
-	pc.setfilter(z)
+	#pc.setfilter(z)
 	decode = { pcap.DLT_LOOP:dpkt.loopback.Loopback,
 			   pcap.DLT_NULL:dpkt.loopback.Loopback,
 			   pcap.DLT_EN10MB:dpkt.ethernet.Ethernet }[pc.datalink()]
 	f = 0
 	while 1:
 		while f == 0:
+			##Debug print
+			print 'Wait parameters'
 			try:
-				p = open(readPipe, 'r')
-				params = p.read().split(',')
-				f = int(params[0])
-				s = params[1]
-				d = params[2]
+				##p = open(readPipe, 'r')
+				##params = p.read().split(',')
+				##f = int(params[0])
+				##s = params[1]
+				##d = params[2]
 				
+				f = 2
+				s = ""
+				d = ""
+
 #				if f == 2:
 #					if s.len() != 0:
 #						s_filter = socket.inet_aton(s)
@@ -69,24 +75,25 @@ def main():
 		
 		pc = pcap.pcap(name)
 		filter = "%s" % apply_filter(f)
-		if s.len() != 0:
+		if len(s) != 0:
 			filter += " and src host %s" % s
-		elif d.len() != 0:
+		elif len(d) != 0:
 			filter += " and dst host %s" % d
 		pc.setfilter(filter)
-	
+
+		pipe_message = "0;No Messages"
+		
+		print 'Starting capture with %d filter <%s>' % (f,filter)
 		while f != 0:
 			try:
 				for ts, pkt in capt:
 					eth = dpkt.ethernet.Ethernet(pkt)
-					pipe_message = ""
 					addr_filter = 0
 
 					if f == 1:
-##					if f == 1 and eth.type == PROTO_GOOSE:
 						goose = eth.data
+
 					elif f == 2:
-##					elif f == 2 and eth.type == PROTO_IP4:
 						ip = eth.data
 						tcp = ip.data
 						if ip_filter == 0 or (ip_filter == 1 and ((s_filter == ip.src) or (d_filter == ip.dst))):
@@ -94,9 +101,9 @@ def main():
 							pipe_message = "%s;%s;%s;%d;%d;%d" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
 
 					elif f == 3:
-##					elif f == 3 and eth.type == PROTO_SV:
 						sv = eth.data
+
 			except:			
-		
+				pass	
 if __name__ == '__main__':
 	main()
