@@ -1,3 +1,4 @@
+import os
 import binascii
 import socket
 import getopt, sys
@@ -6,6 +7,7 @@ import dpkt, pcap
 PROTO_GOOSE = 0x88BB
 PROTO_SV = 0x88BA
 PROTO_IP4 = 0x800
+
 writePipe = "/tmp/pipe1"
 readPipe = "/tmp/pipe2"
 
@@ -33,7 +35,7 @@ def main():
 	z = apply_filter(x) #contains the filter string
 
 	try:
-        	os.mkfifo(writePipe)
+		os.mkfifo(writePipe)
 		os.mkfifo(readPipe)
 	except OSError:
 		pass
