@@ -6,6 +6,8 @@ class MainWidget(Widget):
 	selected_value = StringProperty('Select a button')
 	def change(self,change):
 		self.selected_value = 'Selected: {}'.format(change.text)
+	def teejotain(self):
+		self.ids.nappi.text = 'Jotain'
 class PiSharkApp(App):
 		def build(self):
 			return MainWidget()

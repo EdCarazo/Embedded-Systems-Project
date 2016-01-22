@@ -39,7 +39,9 @@
 				orientation:'vertical'
 				spacing: 10
 				Button:
+					id: nappi
 					text: "Start"
+					on_release: root.teejotain()
 				Button:
 					text: "Stop"
 
@@ -53,11 +55,17 @@
 			BoxLayout:
 				size_hint_y: .1
 				Label:
-					text: 'Enter String'
+					size_hint_x: .2
+					text: 'Src'
 				TextInput:
 					id: add_box
 					multiline: False
-					size_hint_x: 5
+				
+				Label:
+					size_hint_x: .2
+					text: 'Dst'
+				TextInput:
+					multiline: False
 				Button:
 					text: 'Add'
 					on_press: root.my_data.append(add_box.text)
