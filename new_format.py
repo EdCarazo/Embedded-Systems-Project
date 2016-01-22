@@ -30,8 +30,6 @@ def main():
 	for o, a in opts:
 		if o == '-i': name = a
 		else: usage()
-	x = 2 #Test for capping MMS
-	z = apply_filter(x) #contains the filter string
 
 	try:
 		os.mkfifo(writePipe)
@@ -48,7 +46,7 @@ def main():
 	f = 0
 	while 1:
 		while f == 0:
-			##Debug print
+			## DEBUG print
 			print 'Wait parameters'
 			try:
 				##p = open(readPipe, 'r')
@@ -57,6 +55,7 @@ def main():
 				##s = params[1]
 				##d = params[2]
 				
+				## DEBUG PARAMS		
 				f = 2
 				s = ""
 				d = ""
@@ -73,7 +72,6 @@ def main():
 			except IOError:
 				f = 0
 		
-		pc = pcap.pcap(name)
 		filter = "%s" % apply_filter(f)
 		if len(s) != 0:
 			filter += " and src host %s" % s
@@ -86,7 +84,7 @@ def main():
 		print 'Starting capture with %d filter <%s>' % (f,filter)
 		while f != 0:
 			try:
-				for ts, pkt in capt:
+				for ts, pkt in pc:
 					eth = dpkt.ethernet.Ethernet(pkt)
 					addr_filter = 0
 
@@ -102,7 +100,8 @@ def main():
 
 					elif f == 3:
 						sv = eth.data
-
+					
+					print pipe_message
 			except:			
 				pass	
 if __name__ == '__main__':
