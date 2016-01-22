@@ -45,7 +45,7 @@ def main():
 			# Get pipe parameters as string
 			# "<proto_id>,<src>,<dst>"
 			
-
+			pipe_parmas
 #			addr_filter = 1			
 #			addr = "192.168.69.150"
 			
