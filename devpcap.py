@@ -42,18 +42,23 @@ def main():
 			#print ts, `decode(pkt)`
 			eth = dpkt.ethernet.Ethernet(pkt)
 
-			addr_filter = 0			
+			# Get pipe parameters as string
+			# "<proto_id>,<src>,<dst>"
+			
+
+#			addr_filter = 1			
+#			addr = "192.168.69.150"
 			
 			# here get pipe parameters
 			# 
 			
-			print hex(eth.type)
+			# print hex(eth.type)
 			
 			if eth.type == PROTO_IP4:
 				ip = eth.data
 			
 				if addr_filter != 0:
-					_addr_filter = socket.inet_aton(ip_filter)
+					_addr_filter = socket.inet_aton(addr)
 
 				if ip.p == dpkt.ip.IP_PROTO_ICMP:
 					print "PING!!"
@@ -62,6 +67,8 @@ def main():
 					tcp = ip.data
 					pipe_message = "%s;%s;%s;%d;%d;%d;%s" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport, tcp.data)
 					print pipe_message				
+					f.write(pipe_message)
+					f.write('\n')
 			
 			elif eth.type == PROTO_GOOSE:
 				goose = eth.data
@@ -72,8 +79,6 @@ def main():
 			elif eth.type == PROTO_SV:
 				sv = eth.data
 #			print socket.inet_ntoa(ip.src), '\t', socket.inet_ntoa(ip.dst), '\t', tcp.data.id
-			f.write(pipe_message)
-			f.write('\n')
 	except KeyboardInterrupt:
 		nrecv, ndrop, nifdrop = pc.stats()
 		print '\n%d packets received by filter' % nrecv
