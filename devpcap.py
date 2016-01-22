@@ -1,11 +1,13 @@
+import os
 import binascii
 import socket
 import getopt, sys
 import dpkt, pcap
 
-PROTO_GOOSE = 0x88BB
+PROTO_GOOSE = 0x88B8
 PROTO_SV = 0x88BA
 PROTO_IP4 = 0x800
+
 writePipe = "/tmp/pipe1"
 readPipe = "/tmp/pipe2"
 
@@ -29,7 +31,6 @@ def main():
 		if o == '-i': name = a
 		else: usage()
 	x = 2 #Test for capping MMS
-#	f = open('pcaplog.txt' , 'w')
 	z = apply_filter(x) #contains the filter string
 
 	try:
@@ -40,28 +41,28 @@ def main():
 		
 	pc = pcap.pcap(name)
 	#pc.setfilter(' '.join(args))
-	pc.setfilter(z)
+##	pc.setfilter(z)
 	decode = { pcap.DLT_LOOP:dpkt.loopback.Loopback,
 			   pcap.DLT_NULL:dpkt.loopback.Loopback,
 			   pcap.DLT_EN10MB:dpkt.ethernet.Ethernet }[pc.datalink()]
 	try:
 		print 'listening on %s: %s' % (pc.name, pc.filter)
 		for ts, pkt in pc:
-			f = open(writePipe, 'w')
+##			f = open(writePipe, 'w')
 			#print ts, `decode(pkt)`
 			eth = dpkt.ethernet.Ethernet(pkt)
 
 			# Get pipe parameters as string
 			# "<proto_id>,<src>,<dst>"
 			
-			pipe_parmas
-#			addr_filter = 1			
+			pipe_message = ""
+			addr_filter = 0			
 #			addr = "192.168.69.150"
 			
 			# here get pipe parameters
 			# 
 			
-			# print hex(eth.type)
+##			print hex(eth.type)
 			
 			if eth.type == PROTO_IP4:
 				ip = eth.data
@@ -76,10 +77,9 @@ def main():
 					tcp = ip.data
 					pipe_message = "%s;%s;%s;%d;%d;%d;%s" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport, tcp.data)
 					print pipe_message				
-					f.write(pipe_message)
-					f.write('\n')
 			
 			elif eth.type == PROTO_GOOSE:
+				print "GOOSE"
 				goose = eth.data
 				
 				if addr_filter != 0:
@@ -89,9 +89,10 @@ def main():
 				sv = eth.data
 #			print socket.inet_ntoa(ip.src), '\t', socket.inet_ntoa(ip.dst), '\t', tcp.data.id
 
-			f.write(pipe_message)
-			f.write('\n')
-			f.close()
+##			f.write(pipe_message)
+##			f.write('\n')
+##			f.close()
+
 	except KeyboardInterrupt:
 		nrecv, ndrop, nifdrop = pc.stats()
 		print '\n%d packets received by filter' % nrecv
