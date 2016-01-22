@@ -60,7 +60,7 @@ def main():
 			
 				elif (ip.p == dpkt.ip.IP_PROTO_TCP) and (addr_filter == 0 or (_addr_filter == ip.dst or _addr_filter == ip.src )):
 					tcp = ip.data
-					pipe_message = socket.inet_ntoa(ip.src),';', socket.inet_ntoa(ip.dst),';',ip.ttl,';',tcp.sport,';',tcp.dport,';',tcp.data.id,'\n'
+					pipe_message = "%s;%s;%d;%d;%d;%d" % (socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport, tcp.data.id)
 					print pipe_message				
 			
 			elif eth.type == PROTO_GOOSE:
