@@ -29,7 +29,6 @@ def main():
 		if o == '-i': name = a
 		else: usage()
 	x = 2 #Test for capping MMS
-#	f = open('pcaplog.txt' , 'w')
 	z = apply_filter(x) #contains the filter string
 
 	try:
