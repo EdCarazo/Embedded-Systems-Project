@@ -85,23 +85,29 @@ def main():
 		while f != 0:
 			try:
 				for ts, pkt in pc:
-					eth = dpkt.ethernet.Ethernet(pkt)
-					addr_filter = 0
-
-					if f == 1:
-						goose = eth.data
-
-					elif f == 2:
-						ip = eth.data
-						tcp = ip.data
-						if ip_filter == 0 or (ip_filter == 1 and ((s_filter == ip.src) or (d_filter == ip.dst))):
-							# Build string to pipe										
-							pipe_message = "%s;%s;%s;%d;%d;%d" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
-
-					elif f == 3:
-						sv = eth.data
+					try:
+						eth = dpkt.ethernet.Ethernet(pkt)
+						addr_filter = 0
 					
-					print pipe_message
+						if f == 1:
+							goose = eth.data
+
+						elif f == 2:
+							ip = eth.data
+							tcp = ip.data
+							if ip_filter == 0 or (ip_filter == 1 and ((s_filter == ip.src) or (d_filter == ip.dst))):
+								# Build string to pipe										
+								pipe_message = "%s;%s;%s;%d;%d;%d" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
+	
+						elif f == 3:
+							sv = eth.data
+						
+						print pipe_message
+					except TimeoutError:
+						# Something
+						pass
+					except KeyboardInterrupt:
+						return -1
 			except:			
 				pass	
 if __name__ == '__main__':
