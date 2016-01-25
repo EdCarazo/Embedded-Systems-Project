@@ -31,6 +31,7 @@ class MainWidget(Widget):
 	
 
 	def teejotain(self):
+		hello='Hello'
 		self.ids.start.text = 'Started capture with filter'
 		src = self.ids.src.text
 		dst = self.ids.dst.text
@@ -39,6 +40,7 @@ class MainWidget(Widget):
 		f = open(writePipe, 'w')
 		f.write(message)
 		f.close()
+		self.my_data.append(hello)
 	def teejotain2(self):
 		self.ids.start.text = 'Start'
 class PiSharkApp(App):
