@@ -4,63 +4,84 @@
 #: import ListItemButton kivy.uix.listview.ListItemButton
 
 <ListItemButton>:
-	selected_color: .7, .7, .7,1
+	selected_color: .5,.5,.5,1
 	deselected_color: .3,.3,.3,1
 	on_press: app.root.change(*args)
-
 <MainWidget>:
+
 	BoxLayout:
 		size: root.size
 		padding: 10
-		spacing:25
+		spacing: 25
 
 
 		BoxLayout:
 			size_hint: 0.3,1
-			orientation:'vertical'
-			spacing:30			
+			orientation: 'vertical'
+			spacing:30
 
 			BoxLayout:
-				orientation:'vertical'
+				orientation: 'vertical'
 				spacing: 5
-				Label
+				Label:
 					text:"Choose Protocol"
-				ToggleButton:
-					text: "MMS"
-					group: "g1"
 				ToggleButton:
 					text: "Goose"
 					group: "g1"
+					on_press:root.protocol1()
+
 				ToggleButton:
-					text: "SV"
+					text: "MMS"
 					group: "g1"
+					on_press:root.protocol2()
+
+				ToggleButton:
+					text:"SV"
+					group: "g1"
+					on_press:root.protocol3()
 
 			BoxLayout:
 				orientation:'vertical'
 				spacing: 10
 				Button:
-					text: "Start"
+					id: start
+					text:"Start"
+					on_release: root.teejotain()
 				Button:
-					text: "Stop"
-
+					id: stop
+					text:"Stop capture"
+					on_release: root.teejotain2()
+					
 		BoxLayout:
-			orientation:'vertical'
+			orientation: 'vertical'
 
 
 			Label:
+
 				size_hint: None, 0.135
-				text: "PiShark 0.0.1"
+				text: "PiShark 0.0.3"
+
 			BoxLayout:
 				size_hint_y: .1
 				Label:
-					text: 'Enter String'
+					size_hint_x: .2
+					text: 'Src'
 				TextInput:
-					id: add_box
+					id: src
 					multiline: False
-					size_hint_x: 5
+				
+				Label:
+					size_hint_x: .2
+					text: 'Dst'
+				TextInput:
+					id: dst
+					multiline: False
+				
 				Button:
-					text: 'Add'
-					on_press: root.my_data.append(add_box.text)
+					id:close
+					text: 'Close app'
+				
+				
 			ListView:
 				size_hint_y: .8
 				adapter:
@@ -78,7 +99,7 @@
 				size_hint_y: .1
 				canvas.before:
 					Color:
-						rgb: .75,.75,.75
+						rgb: .75,.75,75
 					Rectangle:
 						pos: self.pos
 						size: self.size
