@@ -11,6 +11,6 @@ for example
 GOOSE FILTER
  ether proto 0x88B8 
 MMS FILTER
- tcp port 20
+ tcp port 102
 SV
  ether proto 0x88BA
