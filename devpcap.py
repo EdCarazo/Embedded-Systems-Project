@@ -16,7 +16,7 @@ mq = posix_ipc.MessageQueue(messageQueue, posix_ipc.O_CREAT)
 # 1 = GOOSE, 2 = MMS, 3 = SV
 def apply_filter(x):
     filterer = {
-        1: 'tcp port 102',				##MMS
+        1: 'tcp port 80',				##MMS
         2: 'ether proto 0x88B8',		##GOOSE
         3: 'ether proto 0x88BA'			##SV
     }
@@ -32,7 +32,7 @@ def main():
 	for o, a in opts:
 		if o == '-i': name = a
 		else: usage()
-	x = 2 #Test for capping MMS
+	x = 1 #Test for capping MMS
 #	f = open('pcaplog.txt' , 'w')
 	z = apply_filter(x) #contains the filter string
 
