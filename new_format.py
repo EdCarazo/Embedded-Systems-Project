@@ -14,8 +14,8 @@ readPipe = "/tmp/pipe2"
 # 1 = GOOSE, 2 = MMS, 3 = SV
 def apply_filter(x):
     filterer = {
-        1: 'tcp port 102',			##MMS
-        2: 'ether proto 0x88B8',	##GOOSE
+        1: 'ether proto 0x88B8',	##GOOSE
+        2: 'tcp port 102',			##MMS
         3: 'ether proto 0x88BA'		##SV
     }
     return filterer.get(x, '')
