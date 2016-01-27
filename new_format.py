@@ -56,8 +56,8 @@ def main():
 				##d = params[2]
 				
 				## DEBUG PARAMS		
-				f = 2
-				s = "192.168.69.151"
+				f = 1
+				s = ""
 				d = ""
 
 			except IOError:
@@ -70,7 +70,7 @@ def main():
 			filter += " and dst host %s" % d
 		pc.setfilter(filter)
 
-		pipe_message = "0;No Messages"
+		pipe_message = "0,No Messages"
 		
 		print ('Starting capture with %d filter <%s>') % (f,filter)
 		
@@ -79,20 +79,22 @@ def main():
 				for ts, pkt in pc:
 					#if pc[ts][pkt] is True
 #					try:
+##						eth = dpkt.ethernet.Ethernet("/home/dev/Downloads/GOOSE.pcap")
 						eth = dpkt.ethernet.Ethernet(pkt)
-						addr_filter = 0
 					
 						if f == 1:
 							goose = eth.data
+							print "GOOSE %d\n" % (goose.len)
 
 						elif f == 2:
 							ip = eth.data
 							tcp = ip.data
-							# Build string to pipe										
+							## Build string to pipe										
 							pipe_message = "%s,%s,%s,%d,%d,%d" % ("{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
 	
 						elif f == 3:
 							sv = eth.data
+							print "SV %d\n" % (sv.len)
 						
 						print (pipe_message)
 #					except TimeoutError:
