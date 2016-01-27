@@ -95,7 +95,6 @@ def main():
 							goose = eth.data
 
 						elif f == 2:
-							print ("Debug in filter \n")
 							ip = eth.data
 							tcp = ip.data
 							##if ip_filter == 0 or (ip_filter == 1 and ((s_filter == ip.src) or (d_filter == ip.dst))):
