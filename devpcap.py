@@ -25,8 +25,8 @@ def usage():
 	sys.exit(1)
 
 def main():
-	opts, args = getopt.getopt(sys.argv[1:], 'i:h')
-	name = None
+	opts, args = getopt.getopt(sys.argv[1:], 'i:h') #fetches arguments from command line
+	name = None #contains interface that's used for capture
 	for o, a in opts:
 		if o == '-i': name = a
 		else: usage()
@@ -35,21 +35,21 @@ def main():
 	z = apply_filter(x) #contains the filter string
 
 	try:
-		os.mkfifo(writePipe)
+		os.mkfifo(writePipe) #create pipes for reading and writing
 		os.mkfifo(readPipe)
 	except OSError:
 		pass
 		
-	pc = pcap.pcap(name)
+	pc = pcap.pcap(name) #set the interface that is going to be capturing
 	#pc.setfilter(' '.join(args))
-	pc.setfilter(z)
+	pc.setfilter(z) #add filters for the capture interface
 	decode = { pcap.DLT_LOOP:dpkt.loopback.Loopback,
 			   pcap.DLT_NULL:dpkt.loopback.Loopback,
 			   pcap.DLT_EN10MB:dpkt.ethernet.Ethernet }[pc.datalink()]
 	try:
 		print 'listening on %s: %s' % (pc.name, pc.filter)
 		for ts, pkt in pc:
-			f = open(writePipe, 'w')
+			f = open(writePipe, 'w') #tapping into the pipe
 			#print ts, `decode(pkt)`
 			eth = dpkt.ethernet.Ethernet(pkt)
 
@@ -76,9 +76,9 @@ def main():
 			
 				elif (ip.p == dpkt.ip.IP_PROTO_TCP) and (addr_filter == 0 or (_addr_filter == ip.dst or _addr_filter == ip.src )):
 					tcp = ip.data
-					pipe_message = "%s;%s;%s;%d;%d;%d;%s" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport, tcp.data)
-					print pipe_message				
-					f.write(pipe_message)
+					pipe_message = "%s;%s;%s;%d;%d;%d;%s" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport, tcp.data) #format pipe message
+					print pipe_message #print pipe message i terminal				
+					f.write(pipe_message) #write captured packages into the pipe
 					f.write('\n')
 			
 			elif eth.type == PROTO_GOOSE:
