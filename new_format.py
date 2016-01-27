@@ -47,7 +47,7 @@ def main():
 	while 1:
 		while f == 0:
 			## DEBUG print
-			print 'Wait parameters'
+			print ("Wait parameters")
 			try:
 				##p = open(readPipe, 'r')
 				##params = p.read().split(',')
@@ -57,7 +57,7 @@ def main():
 				
 				## DEBUG PARAMS		
 				f = 2
-				s = ""
+				s = "192.168.69.151"
 				d = ""
 
 #				if f == 2:
@@ -81,11 +81,13 @@ def main():
 
 		pipe_message = "0;No Messages"
 		
-		print 'Starting capture with %d filter <%s>' % (f,filter)
+		print ('Starting capture with %d filter <%s>') % (f,filter)
+		
 		while f != 0:
 			try:
 				for ts, pkt in pc:
-					try:
+					#if pc[ts][pkt] is True
+#					try:
 						eth = dpkt.ethernet.Ethernet(pkt)
 						addr_filter = 0
 					
@@ -93,22 +95,24 @@ def main():
 							goose = eth.data
 
 						elif f == 2:
+							print ("Debug in filter \n")
 							ip = eth.data
 							tcp = ip.data
-							if ip_filter == 0 or (ip_filter == 1 and ((s_filter == ip.src) or (d_filter == ip.dst))):
+							##if ip_filter == 0 or (ip_filter == 1 and ((s_filter == ip.src) or (d_filter == ip.dst))):
 								# Build string to pipe										
-								pipe_message = "%s;%s;%s;%d;%d;%d" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
+							pipe_message = "%s,%s,%s,%d,%d,%d" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
 	
 						elif f == 3:
 							sv = eth.data
 						
-						print pipe_message
-					except TimeoutError:
-						# Something
-						pass
-					except KeyboardInterrupt:
-						return -1
-			except:			
-				pass	
+						print (pipe_message)
+#					except TimeoutError:
+#						# Something
+#						break
+#					if
+			except KeyboardInterrupt:
+				return -1
+#			except:			
+#				pass	
 if __name__ == '__main__':
 	main()
