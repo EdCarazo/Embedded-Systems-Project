@@ -49,7 +49,6 @@ def main():
 		print 'listening on %s: %s' % (pc.name, pc.filter)
 		for ts, pkt in pc:
 			f = open(writePipe, 'w') #tapping into the pipe
-
 			#print ts, `decode(pkt)`
 			eth = dpkt.ethernet.Ethernet(pkt)
 
@@ -80,7 +79,6 @@ def main():
 					print pipe_message #print pipe message i terminal				
 					f.write(pipe_message) #write captured packages into the pipe
 					f.write('\n')
-
 			
 			elif eth.type == PROTO_GOOSE:
 				print "GOOSE"
