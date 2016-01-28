@@ -3,6 +3,7 @@ from kivy.clock import Clock
 from kivy.uix.widget import Widget 
 from kivy.properties import ListProperty, StringProperty, NumericProperty
 protocol = '0'
+cls = '0'
 import os
 import posix_ipc
 
@@ -51,8 +52,16 @@ class MainWidget(Widget):
 		print params
 		Clock.schedule_interval(self.receive, 1/1.)		
 	def stop(self):
-		self.ids.start.text = 'Start'
-		Clock.unschedule(self.receive)
+		global cls	
+		if cls == '0':
+			cls = '1'
+			self.ids.start.text = 'Start'
+			Clock.unschedule(self.receive)					
+		elif cls == '1':			
+			del self.my_data[:]
+			cls = '0'
+						
+
 class PiSharkApp(App):
 		def build(self):
 			return MainWidget()
