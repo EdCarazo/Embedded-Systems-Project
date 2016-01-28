@@ -2,21 +2,21 @@ from kivy.app import App
 from kivy.uix.widget import Widget 
 from kivy.properties import ListProperty, StringProperty, NumericProperty
 protocol = '0'
-#import os
-#import posix_ipc
+import os
+import posix_ipc
 
-#writePipe = "/tmp/pipe"
-#messageQueue = "/msg_que"
+writePipe = "/tmp/pipe"
+messageQueue = "/msg_que"
 
-#try:
-#	os.mkfifo(writePipe)
-#except OSError:
-#	pass
+try:
+	os.mkfifo(writePipe)
+except OSError:
+	pass
 
 class MainWidget(Widget):
 	my_data = ListProperty([])
 	selected_value = StringProperty('Select a packet')
-#	mq = posix_ipc.MessageQueue(messageQueue)
+	mq = posix_ipc.MessageQueue()
 	def change(self,change):
 		self.selected_value = 'Selected: {}'.format(change.text)
 
@@ -37,11 +37,11 @@ class MainWidget(Widget):
 		global protocol
 		message =protocol+","+src+","+dst
 		print message
-#		f, _ = mq.receive()
+		f, _ = mq.receive()
 		self.my_data.append(message)
 	def teejotain2(self):
 		self.ids.start.text = 'Start'
-#			mq.close()
+		mq.close()
 
 class PiSharkApp(App):
 		def build(self):
