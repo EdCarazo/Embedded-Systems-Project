@@ -49,7 +49,7 @@ class MainWidget(Widget):
 		params = protocol+","+src+","+dst
 		self.send_parameters(params)
 		print params
-		Clock.schedule_interval(self.receive, 1/1.)		
+		Clock.schedule_interval(self.receive, 1/15.)		
 	def stop(self):
 		self.ids.start.text = 'Start'
 		Clock.unschedule(self.receive)
