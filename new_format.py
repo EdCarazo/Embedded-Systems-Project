@@ -1,15 +1,17 @@
+import time
 import os
 import binascii
 import socket
 import getopt, sys
 import dpkt, pcap
+import posix_ipc
 
 PROTO_GOOSE = 0x88B8
 PROTO_SV = 0x88BA
 PROTO_IP4 = 0x800
 
-writePipe = "/tmp/pipe1"
-readPipe = "/tmp/pipe2"
+readPipe = "/tmp/pipe"
+messageQue = "/msg_que"
 
 # 1 = GOOSE, 2 = MMS, 3 = SV
 def apply_filter(x):
@@ -31,11 +33,21 @@ def main():
 		if o == '-i': name = a
 		else: usage()
 
+	mq = posix_ipc.MessageQueue(messageQue, posix_ipc.O_CREAT)
+
 	try:
-		os.mkfifo(writePipe)
 		os.mkfifo(readPipe)
-	except OSError:
 		pass
+	except OSError:
+		print "mkfifo readpipe"
+		pass
+
+	log_name = "./.log/log_%s.txt" % (time.strftime("%Y%m%d_%H%M%S"))
+	try:
+		logf = open(log_name, 'w')		
+	except OSError:
+		print "couldn't open logfile"
+		sys.exit(1)
 		
 	pc = pcap.pcap(name)
 	#pc.setfilter(' '.join(args))
@@ -44,71 +56,82 @@ def main():
 			   pcap.DLT_NULL:dpkt.loopback.Loopback,
 			   pcap.DLT_EN10MB:dpkt.ethernet.Ethernet }[pc.datalink()]
 	f = 0
+
+	print ("Wait parameters")
+	p = open(readPipe, 'r')
 	while 1:
 		while f == 0:
 			## DEBUG print
-			print 'Wait parameters'
-			try:
-				##p = open(readPipe, 'r')
-				##params = p.read().split(',')
-				##f = int(params[0])
-				##s = params[1]
-				##d = params[2]
+			try:	
+				params = p.read().split(',')
+				f = int(params[0])
+				s = params[1]
+				d = params[2]
+				sf = 0
+				df = 0
 				
-				## DEBUG PARAMS		
-				f = 2
-				s = ""
-				d = ""
-
-#				if f == 2:
-#					if s.len() != 0:
-#						s_filter = socket.inet_aton(s)
-#					if d.len() != 0:
-#						d_filter = socket.inet_aton(d)
-#					
-#					if s.len() != 0 or d.len != 0:
-#						ip_filter = 1
-#					else: ip_filter = 0
+		## DEBUG PARAMS		
+				##f = 2
+				##s = ""
+				##d = "192.168.69.24"
+				
+				if len(s) != 0:
+					sf = socket.inet_aton(s)
+				if len(d) != 0:
+					df = socket.inet_aton(d)
 			except IOError:
 				f = 0
 		
-		filter = "%s" % apply_filter(f)
-		if len(s) != 0:
-			filter += " and src host %s" % s
-		elif len(d) != 0:
-			filter += " and dst host %s" % d
-		pc.setfilter(filter)
-
-		pipe_message = "0;No Messages"
-		
-		print 'Starting capture with %d filter <%s>' % (f,filter)
+		print ('Starting capture')
+		mq = posix_ipc.MessageQueue(messageQue)
 		while f != 0:
 			try:
 				for ts, pkt in pc:
-					try:
 						eth = dpkt.ethernet.Ethernet(pkt)
-						addr_filter = 0
 					
-						if f == 1:
+						if f == 1 and eth.type == PROTO_GOOSE:
 							goose = eth.data
+							pipe_message = "%s,%d,%s" % ("{0:.6f}".format(ts), goose.len, goose.data)
+							mq.write(pipe_message)
+							logf.write(pipe_message)
+							logf.write('\n')
+				
+							print "GOOSE %d\n" % (goose.len)
 
-						elif f == 2:
+						elif f == 2 and eth.type == PROTO_IP4:
 							ip = eth.data
-							tcp = ip.data
-							if ip_filter == 0 or (ip_filter == 1 and ((s_filter == ip.src) or (d_filter == ip.dst))):
-								# Build string to pipe										
-								pipe_message = "%s;%s;%s;%d;%d;%d" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
+							if ip.p == dpkt.ip.IP_PROTO_TCP:
+								tcp = ip.data
+								if tcp.sport == 102 or tcp.dport == 102:
+									if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
+										## Build string to pipe										
+										pipe_message = "%s,%s,%s,%d,%d,%d" % ("{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
+										mq.write(pipe_message)
+										logf.write(pipe_message)
+										logf.write('\n')
+																
+										print pipe_message
 	
-						elif f == 3:
+						elif f == 3 and eth.type == PROTO_SV:
 							sv = eth.data
+							pipe_message = "%s,%d,%s" % ("{0:.6f}".format(ts), sv.len, sv.data)
+							mq.write(pipe_message)
+							logf.write(pipe_message)
+							logf.write('\n')
+							print "SV %d\n" % (sv.len)
 						
-						print pipe_message
-					except TimeoutError:
-						# Something
-						pass
-					except KeyboardInterrupt:
-						return -1
-			except:			
-				pass	
+						params = p.read().split(',')
+						f = int(params[0])
+						if f == 0:
+							break
+						
+			except KeyboardInterrupt:
+				mq.close()
+				mq.unlink()
+				logf.close()
+				readPipe.close()
+				return -1
+		mq.close()
+	mq.unlink
 if __name__ == '__main__':
 	main()
