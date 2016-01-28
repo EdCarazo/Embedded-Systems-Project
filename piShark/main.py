@@ -61,7 +61,6 @@ class MainWidget(Widget):
 			del self.my_data[:]
 			cls = '0'
 						
-
 class PiSharkApp(App):
 		def build(self):
 			return MainWidget()
