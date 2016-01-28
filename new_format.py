@@ -48,59 +48,65 @@ def main():
 		while f == 0:
 			## DEBUG print
 			print ("Wait parameters")
-			try:
-				##p = open(readPipe, 'r')
-				##params = p.read().split(',')
-				##f = int(params[0])
-				##s = params[1]
-				##d = params[2]
+			try:	
+				p = open(readPipe, 'r')
+				s = params[1]
+				d = params[2]
+				sf = 0
+				df = 0
 				
-				## DEBUG PARAMS		
-				f = 1
-				s = ""
-				d = ""
-
+		## DEBUG PARAMS		
+				##f = 2
+				##s = ""
+				##d = "192.168.69.24"
+				
+				if len(s) != 0:
+					sf = socket.inet_aton(s)
+				if len(d) != 0:
+					df = socket.inet_aton(d)
 			except IOError:
 				f = 0
 		
-		filter = "%s" % apply_filter(f)
-		if len(s) != 0:
-			filter += " and src host %s" % s
-		elif len(d) != 0:
-			filter += " and dst host %s" % d
-		pc.setfilter(filter)
+				
 
-		pipe_message = "0,No Messages"
+##		pipe_message = "0,No Messages"
 		
-		print ('Starting capture with %d filter <%s>') % (f,filter)
+		print ('Starting capture')
 		
 		while f != 0:
 			try:
 				for ts, pkt in pc:
-					#if pc[ts][pkt] is True
-#					try:
-##						eth = dpkt.ethernet.Ethernet("/home/dev/Downloads/GOOSE.pcap")
 						eth = dpkt.ethernet.Ethernet(pkt)
 					
-						if f == 1:
+						if f == 1 and eth.type == PROTO_GOOSE:
 							goose = eth.data
+							pipe_message = "%s,%d,%s" % ("{0:.6f}".format(ts), goose.len, goose.data)
 							print "GOOSE %d\n" % (goose.len)
 
-						elif f == 2:
+						elif f == 2 and eth.type == PROTO_IP4:
 							ip = eth.data
-							tcp = ip.data
-							## Build string to pipe										
-							pipe_message = "%s,%s,%s,%d,%d,%d" % ("{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
+							if ip.p == dpkt.ip.IP_PROTO_TCP:
+								tcp = ip.data
+								if tcp.sport == 102 or tcp.dport == 102:
+									if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
+										## Build string to pipe										
+										pipe_message = "%s,%s,%s,%d,%d,%d" % ("{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
+										
+										print pipe_message
 	
-						elif f == 3:
+						elif f == 3 and eth.type == PROTO_SV:
 							sv = eth.data
+							pipe_message = "%s,%d,%s" % ("{0:.6f}".format(ts), sv.len, sv.data)
 							print "SV %d\n" % (sv.len)
 						
-						print (pipe_message)
+						params = p.read().split(',')
+						f = int(params[0])
+						if f == 0
+							break
 #					except TimeoutError:
 						# Something
 #						break
-#					if
+						
 			except KeyboardInterrupt:
 				return -1
 #			except:			
