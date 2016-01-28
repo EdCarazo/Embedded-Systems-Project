@@ -81,10 +81,9 @@ def main():
 						elif f == 2:
 							ip = eth.data
 							tcp = ip.data
-							if ip_filter == 0 or (ip_filter == 1 and ((s_filter == ip.src) or (d_filter == ip.dst))):
-								# Build string to pipe										
-								pipe_message = "%s;%s;%s;%d;%d;%d" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
-	
+
+							# Build string to pipe										
+							pipe_message = "%s;%s;%s;%d;%d;%d" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)	
 						elif f == 3:
 							sv = eth.data
 						
