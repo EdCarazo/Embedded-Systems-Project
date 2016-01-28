@@ -41,6 +41,9 @@ class MainWidget(Widget):
 		dst = self.ids.dst.text
 		global protocol
 		message=protocol+","+src+","+dst
+#		f = open(writePipe,'w')
+#		f.write(message)
+#		f.close()
 		print message
 		Clock.schedule_interval(self.receive, 1/1.)		
 	def stop(self):
