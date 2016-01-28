@@ -34,17 +34,21 @@ class MainWidget(Widget):
 	def receive(self, *args):
 		f, _ = mq.receive()
 		self.my_data.append(f)
+	
+	def send_parameters(self, params):
+		p = open(writePipe, 'w')
+		params_send = str(params)
+		p.write(params_send)
+		p.close()
 		
 	def start(self):
 		self.ids.start.text = 'Started capture with filter'
 		src = self.ids.src.text
 		dst = self.ids.dst.text
 		global protocol
-		message=protocol+","+src+","+dst
-#		f = open(writePipe,'w')
-#		f.write(message)
-#		f.close()
-		print message
+		params = protocol+","+src+","+dst
+		self.send_parameters(params)
+		print params
 		Clock.schedule_interval(self.receive, 1/1.)		
 	def stop(self):
 		self.ids.start.text = 'Start'
