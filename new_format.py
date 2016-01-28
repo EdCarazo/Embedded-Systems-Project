@@ -49,12 +49,26 @@ def main():
 			## DEBUG print
 			print 'Wait parameters'
 			try:
-				p = open(readPipe, 'r')
-				params = p.read().split(',')
-				f = int(params[0])
-				s = params[1]
-				d = params[2]
+				##p = open(readPipe, 'r')
+				##params = p.read().split(',')
+				##f = int(params[0])
+				##s = params[1]
+				##d = params[2]
 				
+				## DEBUG PARAMS		
+				f = 2
+				s = ""
+				d = ""
+
+#				if f == 2:
+#					if s.len() != 0:
+#						s_filter = socket.inet_aton(s)
+#					if d.len() != 0:
+#						d_filter = socket.inet_aton(d)
+#					
+#					if s.len() != 0 or d.len != 0:
+#						ip_filter = 1
+#					else: ip_filter = 0
 			except IOError:
 				f = 0
 		
@@ -81,9 +95,10 @@ def main():
 						elif f == 2:
 							ip = eth.data
 							tcp = ip.data
-
-							# Build string to pipe										
-							pipe_message = "%s;%s;%s;%d;%d;%d" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)	
+							if ip_filter == 0 or (ip_filter == 1 and ((s_filter == ip.src) or (d_filter == ip.dst))):
+								# Build string to pipe										
+								pipe_message = "%s;%s;%s;%d;%d;%d" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
+	
 						elif f == 3:
 							sv = eth.data
 						
