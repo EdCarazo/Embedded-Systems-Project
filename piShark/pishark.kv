@@ -26,21 +26,19 @@
 				Label:
 					text:"Choose Protocol"
 				ToggleButton:
-					text: "MMS"
-					group: "g1"
-					state: 'down'
-					on_state:root.MMS(*args)
-
-				ToggleButton:
 					text: "Goose"
 					group: "g1"
-					on_state:root.GOOSE(*args)
+					on_press:root.protocol1()
 
+				ToggleButton:
+					text: "MMS"
+					group: "g1"
+					on_press:root.protocol2()
 
 				ToggleButton:
 					text:"SV"
 					group: "g1"
-					on_state:root.SV(*args)
+					on_press:root.protocol3()
 
 			BoxLayout:
 				orientation:'vertical'
@@ -48,16 +46,16 @@
 				Button:
 					id: start
 					text:"Start"
-					on_release: root.teejotain()
+					on_release: root.start()
 				Button:
 					id: stop
 					text:"Stop capture"
-					on_release: root.teejotain2()
+					on_release: root.stop()
 					
 		BoxLayout:
 			orientation: 'vertical'
-			spacing: 11
-			
+
+
 			Label:
 
 				size_hint: None, 0.135
@@ -78,6 +76,12 @@
 				TextInput:
 					id: dst
 					multiline: False
+				
+				Button:
+					id:close
+					text: 'Close app'
+				
+				
 			ListView:
 				size_hint_y: .8
 				adapter:
