@@ -4,12 +4,14 @@ import binascii
 import socket
 import getopt, sys
 import dpkt, pcap
+import posix_ipc
 
 PROTO_GOOSE = 0x88B8
 PROTO_SV = 0x88BA
 PROTO_IP4 = 0x800
 
 readPipe = "/tmp/pipe"
+messageQue = "/msg_que"
 
 # 1 = GOOSE, 2 = MMS, 3 = SV
 def apply_filter(x):
@@ -30,6 +32,8 @@ def main():
 	for o, a in opts:
 		if o == '-i': name = a
 		else: usage()
+
+	mq = posix_ipc.MessageQueue(messageQue, posix_ipc.O_CREAT)
 
 	try:
 		os.mkfifo(readPipe)
@@ -79,7 +83,7 @@ def main():
 				f = 0
 		
 		print ('Starting capture')
-		
+		mq = posix_ipc.MessageQueue(messageQue)
 		while f != 0:
 			try:
 				for ts, pkt in pc:
@@ -88,6 +92,7 @@ def main():
 						if f == 1 and eth.type == PROTO_GOOSE:
 							goose = eth.data
 							pipe_message = "%s,%d,%s" % ("{0:.6f}".format(ts), goose.len, goose.data)
+							mq.write(pipe_message)
 							logf.write(pipe_message)
 							logf.write('\n')
 				
@@ -101,6 +106,7 @@ def main():
 									if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
 										## Build string to pipe										
 										pipe_message = "%s,%s,%s,%d,%d,%d" % ("{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
+										mq.write(pipe_message)
 										logf.write(pipe_message)
 										logf.write('\n')
 																
@@ -109,6 +115,7 @@ def main():
 						elif f == 3 and eth.type == PROTO_SV:
 							sv = eth.data
 							pipe_message = "%s,%d,%s" % ("{0:.6f}".format(ts), sv.len, sv.data)
+							mq.write(pipe_message)
 							logf.write(pipe_message)
 							logf.write('\n')
 							print "SV %d\n" % (sv.len)
@@ -119,10 +126,12 @@ def main():
 							break
 						
 			except KeyboardInterrupt:
+				mq.close()
+				mq.unlink()
 				logf.close()
 				readPipe.close()
 				return -1
-
-
+		mq.close()
+	mq.unlink
 if __name__ == '__main__':
 	main()
