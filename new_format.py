@@ -92,7 +92,7 @@ def main():
 						if f == 1 and eth.type == PROTO_GOOSE:
 							goose = eth.data
 							pipe_message = "%s,%d,%s" % ("{0:.6f}".format(ts), goose.len, goose.data)
-							mq.write(pipe_message)
+							mq.send(pipe_message)
 							logf.write(pipe_message)
 							logf.write('\n')
 				
@@ -106,7 +106,7 @@ def main():
 									if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
 										## Build string to pipe										
 										pipe_message = "%s,%s,%s,%d,%d,%d" % ("{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
-										mq.write(pipe_message)
+										mq.send(pipe_message)
 										logf.write(pipe_message)
 										logf.write('\n')
 																
@@ -115,15 +115,17 @@ def main():
 						elif f == 3 and eth.type == PROTO_SV:
 							sv = eth.data
 							pipe_message = "%s,%d,%s" % ("{0:.6f}".format(ts), sv.len, sv.data)
-							mq.write(pipe_message)
+							mq.send(pipe_message)
 							logf.write(pipe_message)
 							logf.write('\n')
 							print "SV %d\n" % (sv.len)
-						
-						params = p.read().split(',')
-						f = int(params[0])
-						if f == 0:
-							break
+						try:						
+							params = p.read().split(',')
+							f = int(params[0])
+							if f == 0:
+								break
+						except:
+							pass
 						
 			except KeyboardInterrupt:
 				mq.close()
