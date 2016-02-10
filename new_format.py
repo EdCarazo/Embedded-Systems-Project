@@ -9,16 +9,18 @@ import posix_ipc
 PROTO_GOOSE = 0x88B8
 PROTO_SV = 0x88BA
 PROTO_IP4 = 0x800
+PROTO_TIMESYNC = 0x88F7
 
 readPipe = "/tmp/pipe"
 messageQue = "/msg_que"
 
-# 1 = GOOSE, 2 = MMS, 3 = SV
+# 1 = GOOSE, 2 = MMS, 3 = SV, 4 = timesync (NTP, PTP over udp and ethernet)
 def apply_filter(x):
     filterer = {
         1: 'ether proto 0x88B8',
         2: 'tcp port 102',
         3: 'ether proto 0x88BA'
+        4: 'udp port 123 or udp port 319 or udp port 320 or ther proto 0x88F7'
     }
     return filterer.get(x, '')
 
@@ -119,6 +121,21 @@ def main():
 							logf.write(pipe_message)
 							logf.write('\n')
 							print "SV %d\n" % (sv.len)
+
+						elif f == 4 and (eth.type == PROTO_IP4 or eth.type == PROTO_TIMESYNC):
+							ip = eth.data
+							if ip.p == dpkt.ip.IP_PROTO_UDP:
+								udp = ip.data
+								if udp.sport == 123 or udp.dport == 123 or udp.sport == 319 or udp.dport == 319 or udp.sport == 320 or udp.dport == 320:
+									if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
+										## Build string to pipe										
+										pipe_message = "%s,%s,%s,%d,%d,%d" % ("{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, udp.sport, udp.dport)							
+										mq.send(pipe_message)
+										logf.write(pipe_message)
+										logf.write('\n')
+																
+										print pipe_message
+
 						try:
 							params = p.read().split(',')
 							f = int(params[0])
