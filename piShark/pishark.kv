@@ -1,11 +1,12 @@
 #:kivy 1.0.9
-
+#: import TextInput kivy.uix.textinput
 #: import ListAdapter kivy.adapters.listadapter.ListAdapter
 #: import ListItemButton kivy.uix.listview.ListItemButton
 #: import ListItemLabel kivy.uix.listview.ListItemLabel
 #: import FadeTransition kivy.uix.screenmanager.FadeTransition
+#: import WipeTransition kivy.uix.screenmanager.WipeTransition
 ScreenManagement:
-	transition: FadeTransition()
+	transition: WipeTransition()
 	BasicCapture:
 	TriggeredCapture:
 	TrackingLog:
@@ -233,8 +234,22 @@ ScreenManagement:
 			BoxLayout:
 				orientation: 'vertical'
 				spacing: 5
-				Label:
-					text:"Choose Protocol"
+
+				TextInput:
+					hint_text: "Start time"
+					multiline: False
+					
+				TextInput:
+					hint_text: "Stop time"
+					multiline: False
+					
+				TextInput:
+					hint_text: "Number of packages"
+					multiline: False
+			BoxLayout:
+				orientation:'vertical'
+				spacing: 10
+									
 				ToggleButton:
 					text: "Goose"
 					group: "g1"
@@ -252,9 +267,11 @@ ScreenManagement:
 				ToggleButton:
 					text:"TIMESYNC"
 					group: "g1"
-				TextInput:
-				TextInput:
-				TextInput:				
+					on_press:root.protocol4()
+			BoxLayout:
+				orientation:'vertical'
+				spacing: 10
+
 				Button:
 					id: start
 					text:"Start"
@@ -326,6 +343,33 @@ ScreenManagement:
 			BoxLayout:
 				ListView:
 					size_hint_x: .4
+					do_scroll_y: False
+					adapter:
+						ListAdapter(data=root.my_data1,
+						selection_mode='single',
+						allow_empty_selection=False,
+						cls=ListItemButton)
+					canvas.before:
+						Color:
+							rgb: .5,.5,.5
+						Rectangle:
+							pos: self.pos
+							size: self.size
+				ListView:
+					size_hint_x: 1.
+					adapter:
+						ListAdapter(data=root.my_data2,
+						selection_mode='single',
+						allow_empty_selection=False,
+						cls=ListItemButton)
+					canvas.before:
+						Color:
+							rgb: .5,.5,.5
+						Rectangle:
+							pos: self.pos
+							size: self.size
+				ListView:
+					size_hint_x: 1.5
 					adapter:
 						ListAdapter(data=root.my_data3,
 						selection_mode='single',
@@ -337,6 +381,58 @@ ScreenManagement:
 						Rectangle:
 							pos: self.pos
 							size: self.size
+				ListView:
+					size_hint_x: 1.5
+					adapter:
+						ListAdapter(data=root.my_data4,
+						selection_mode='single',
+						allow_empty_selection=False,
+						cls=ListItemButton)
+					canvas.before:
+						Color:
+							rgb: .5,.5,.5
+						Rectangle:
+							pos: self.pos
+							size: self.size
+				ListView:
+					adapter:
+						ListAdapter(data=root.my_data5,
+						selection_mode='single',
+						allow_empty_selection=False,
+						cls=ListItemButton)
+					canvas.before:
+						Color:
+							rgb: .5,.5,.5
+						Rectangle:
+							pos: self.pos
+							size: self.size
+				ListView:
+					adapter:
+						ListAdapter(data=root.my_data6,
+						selection_mode='single',
+						allow_empty_selection=False,
+						cls=ListItemButton)
+					canvas.before:
+						Color:
+							rgb: .5,.5,.5
+						Rectangle:
+							pos: self.pos
+							size: self.size
+				ListView:
+					adapter:
+						ListAdapter(data=root.my_data7,
+						selection_mode='single',
+						allow_empty_selection=False,
+						cls=ListItemButton)
+					canvas.before:
+						Color:
+							rgb: .5,.5,.5
+						Rectangle:
+							pos: self.pos
+							size: self.size
+
+
+
 <TrackingLog>:
 	name: 'tracking'
 	BoxLayout:
