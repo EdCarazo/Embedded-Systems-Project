@@ -19,7 +19,7 @@ def apply_filter(x):
     filterer = {
         1: 'ether proto 0x88B8',
         2: 'tcp port 102',
-        3: 'ether proto 0x88BA'
+        3: 'ether proto 0x88BA',
         4: 'udp port 123 or udp port 319 or udp port 320 or ther proto 0x88F7'
     }
     return filterer.get(x, '')
