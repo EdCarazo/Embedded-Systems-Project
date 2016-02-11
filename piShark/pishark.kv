@@ -246,9 +246,9 @@ ScreenManagement:
 				TextInput:
 					hint_text: "Number of packages"
 					multiline: False
-			BoxLayout:
-				orientation:'vertical'
-				spacing: 10
+			GridLayout:
+				cols: 2
+				spacing: 8
 									
 				ToggleButton:
 					text: "Goose"
@@ -265,7 +265,7 @@ ScreenManagement:
 					group: "g1"
 					on_press:root.protocol3()
 				ToggleButton:
-					text:"TIMESYNC"
+					text:"TS"
 					group: "g1"
 					on_press:root.protocol4()
 			BoxLayout:
