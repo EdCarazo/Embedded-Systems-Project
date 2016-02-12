@@ -141,6 +141,7 @@ class BasicCapture(Screen):
 		params = protocol+","+src+","+dst
 		self.send_parameters(params)
 		print params
+<<<<<<< HEAD
 		Clock.schedule_interval(self.receive, 1/1000.)		
 	def stop(self):
 		global cls
