@@ -231,21 +231,6 @@ ScreenManagement:
 			orientation: 'vertical'
 			spacing:30
 
-			BoxLayout:
-				orientation: 'vertical'
-				spacing: 5
-
-				TextInput:
-					hint_text: "Start time"
-					multiline: False
-					
-				TextInput:
-					hint_text: "Stop time"
-					multiline: False
-					
-				TextInput:
-					hint_text: "Number of packages"
-					multiline: False
 			GridLayout:
 				cols: 2
 				spacing: 8
@@ -268,6 +253,14 @@ ScreenManagement:
 					text:"TS"
 					group: "g1"
 					on_press:root.protocol4()
+			BoxLayout:
+				orientation: 'vertical'
+				spacing: 5
+				size_hint_y: .5
+				TextInput: 
+					id: amount
+					hint_text: "Number of packages"
+					multiline: False
 			BoxLayout:
 				orientation:'vertical'
 				spacing: 10
