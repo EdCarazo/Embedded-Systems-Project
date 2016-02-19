@@ -13,7 +13,6 @@ PROTO_TIMESYNC = 0x88F7 ## Ethernet proto value for PTP based timesync over ethe
 
 readPipe = "/tmp/pipe" ##Variable containing pipe for sending parameters
 messageQue = "/msg_que" ##variable containing the messageQueue
-countPackets = 0 ##Variable containing the number of packets we want to capture
 
 def usage():
 	print >>sys.stderr, 'usage: %s [-i device] [pattern]' % sys.argv[0] ##prints the usage message with necessary arguments listed
@@ -22,6 +21,8 @@ def usage():
 def main():
 	opts, args = getopt.getopt(sys.argv[1:], 'i:h') ##fetches command line arguments
 	name = None 
+	countPackets = 0 ##Variable containing the number of packets we want to capture
+
 	for o, a in opts:
 		if o == '-i': name = a
 		else: usage()
@@ -51,21 +52,19 @@ def main():
 
 	print ("Wait parameters")
 
-	p = open(readPipe, 'r') ##Opens the pipe for reading to receive parameters from GUI
+	##p = open(readPipe, 'r') ##Opens the pipe for reading to receive parameters from GUI
 	while 1:
 		while f == 0:
 			## DEBUG print
 			try:	
-				params = p.read().split(',') ##read parameters sent by GUI
+##				params = p.read().split(',') ##read parameters sent by GUI
 				f = int(params[0]) ##Contains the Protocol number value for selecting protocol to capture
 				s = params[1] ## contains the source IP address for the packages we want to capture
 				d = params[2] ##contains the destination IP address for the packages we want to capture
 				sf = 0
 				df = 0
-				if params[3] != 0:
-					sdf = params[3] ##contains the count of packets the software will capture before quiting capture
-				else:
-					sdf = 100000 ##default count of packets captured if value isn't defined in the GUI
+				sdf = int(params[3]) ##contains the count of packets the software will capture before quiting capture
+
 		## DEBUG PARAMS		
 				##f = 2
 				##s = ""
@@ -80,66 +79,62 @@ def main():
 		
 		print ('Starting capture')
 		mq = posix_ipc.MessageQueue(messageQue) ##creates messageQueue for sending data to the GUI
-		while f != 0:
+		while f != 0 or (countPackets < sdf and sdf != 0):
 			try:
 				for ts, pkt in pc:
 						eth = dpkt.ethernet.Ethernet(pkt)
 					
 						if f == 1 and eth.type == PROTO_GOOSE:
-							while countPackets < sdf:
-								goose = eth.data ##Variable containing all the data contained in a packet captured by the interface
-								countPackets +=1
-								pipe_message = "%d,%s,%d,%s" % (countPackets,"{0:.6f}".format(ts), goose.len, goose.data) ##Formats the message for GUI and logs
-								mq.send(pipe_message) ##Sends the data to the GUI through messageQueue
-								logf.write(pipe_message) ##Writes the data into Logfile
-								logf.write('\n')
+							goose = eth.data ##Variable containing all the data contained in a packet captured by the interface
+							countPackets +=1
+							pipe_message = "%d,%s,%d,%s" % (countPackets,"{0:.6f}".format(ts), goose.len, goose.data) ##Formats the message for GUI and logs
+							mq.send(pipe_message) ##Sends the data to the GUI through messageQueue
+							logf.write(pipe_message) ##Writes the data into Logfile
+							logf.write('\n')
 				
-								print "GOOSE %d\n" % (goose.len) ##prints goose packet length in the terminal
+							print "GOOSE %d\n" % (goose.len) ##prints goose packet length in the terminal
 
 
 						elif f == 2 and eth.type == PROTO_IP4:
-							while countPackets < sdf:
-								ip = eth.data
-								if ip.p == dpkt.ip.IP_PROTO_TCP:
-									tcp = ip.data
-									if tcp.sport == 102 or tcp.dport == 102:
-										if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
-											## Build string to pipe										
-											countPackets +=1
-											pipe_message = "%d,%s,%s,%s,%d,%d,%d" % countPackets, ("{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
-											mq.send(pipe_message)
-											logf.write(pipe_message)
-											logf.write('\n')
+							ip = eth.data
+							if ip.p == dpkt.ip.IP_PROTO_TCP:
+								tcp = ip.data
+								if tcp.sport == 102 or tcp.dport == 102:
+									if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
+										## Build string to pipe										
+										countPackets +=1
+										pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets,"{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
+										mq.send(pipe_message)
+										logf.write(pipe_message)
+										logf.write('\n')
 																
-											print pipe_message
+										print pipe_message
 
 	
 						elif f == 3 and eth.type == PROTO_SV:
-							while countPackets < sdf:
-								sv = eth.data
-								countPackets +=1
-								pipe_message = "%d,%s,%d,%s" % (countPackets, "{0:.6f}".format(ts), sv.len, sv.data)
-								mq.send(pipe_message)
-								logf.write(pipe_message)
-								logf.write('\n')
-								print "SV %d\n" % (sv.len)
+							sv = eth.data
+							countPackets +=1
+							pipe_message = "%d,%s,%d,%s" % (countPackets, "{0:.6f}".format(ts), sv.len, sv.data)
+							mq.send(pipe_message)
+							logf.write(pipe_message)
+							logf.write('\n')
+							print "SV %d\n" % (sv.len)
 
 
 						elif f == 4 and (eth.type == PROTO_IP4 or eth.type == PROTO_TIMESYNC):
-							while countPackets < sdf:
-								ip = eth.data
-								if ip.p == dpkt.ip.IP_PROTO_UDP:
-									udp = ip.data
-									if udp.sport == 123 or udp.dport == 123 or udp.sport == 319 or udp.dport == 319 or udp.sport == 320 or udp.dport == 320:
-										if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
-											## Build string to pipe										
-											countPackets +=1
-											pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets, "{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, udp.sport, udp.dport)							
-											mq.send(pipe_message)
-											logf.write(pipe_message)
-											logf.write('\n')
+							ip = eth.data
+							if ip.p == dpkt.ip.IP_PROTO_UDP:
+								udp = ip.data
+								if udp.sport == 123 or udp.dport == 123 or udp.sport == 319 or udp.dport == 319 or udp.sport == 320 or udp.dport == 320:
+									if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
+										## Build string to pipe										
+										countPackets +=1
+										pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets, "{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, udp.sport, udp.dport)							
+										mq.send(pipe_message)
+										logf.write(pipe_message)
+										logf.write('\n')
 																
-											print pipe_message
+										print pipe_message
 
 
 						try:
