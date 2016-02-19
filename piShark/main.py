@@ -147,8 +147,9 @@ class BasicCapture(Screen):
 		self.ids.start.text = 'Started capture with filter'
 		src = self.ids.src.text
 		dst = self.ids.dst.text
+		amount = "0"
 		global protocol
-		params = protocol+","+src+","+dst
+		params = protocol+","+src+","+dst+","+amount
 		self.send_parameters(params)
 		print params
 		Clock.schedule_interval(self.receive, 1/1000.)		
