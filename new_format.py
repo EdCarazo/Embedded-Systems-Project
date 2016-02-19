@@ -52,12 +52,12 @@ def main():
 
 	print ("Wait parameters")
 
-	##p = open(readPipe, 'r') ##Opens the pipe for reading to receive parameters from GUI
+	p = open(readPipe, 'r') ##Opens the pipe for reading to receive parameters from GUI
 	while 1:
 		while f == 0:
 			## DEBUG print
 			try:	
-##				params = p.read().split(',') ##read parameters sent by GUI
+				params = p.read().split(',') ##read parameters sent by GUI
 				f = int(params[0]) ##Contains the Protocol number value for selecting protocol to capture
 				s = params[1] ## contains the source IP address for the packages we want to capture
 				d = params[2] ##contains the destination IP address for the packages we want to capture
