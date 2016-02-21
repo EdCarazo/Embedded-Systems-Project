@@ -48,6 +48,7 @@ class TriggeredCapture(Screen):
 			f, _ = mq.receive(10)
 			f_string = str(f)
 			f_list = f_string.split(',')
+			self.ids.noti.text = 'Running'
 			self.my_data1.append(f_list[0])
 			self.my_data3.append(f_list[2])
 			self.my_data4.append(f_list[3])
@@ -55,6 +56,7 @@ class TriggeredCapture(Screen):
 			self.my_data6.append(f_list[5])
 			self.my_data7.append(f_list[6])
 		except:
+			self.ids.noti.text = 'Nothing received'
 			pass
 	def send_parameters(self, params):
 		p = open(writePipe, 'w')
@@ -65,6 +67,7 @@ class TriggeredCapture(Screen):
 		global cls
 		cls = '0'
 		self.ids.start.text = 'Started capture with filter'
+		self.ids.noti.text = 'Starting capture'
 		src = self.ids.src.text
 		dst = self.ids.dst.text
 		amount=self.ids.amount.text
@@ -81,6 +84,7 @@ class TriggeredCapture(Screen):
 		global count
 		if cls == '0':
 			cls = '1'
+			self.ids.noti.text = 'Click Start to Continue or Stop to Clear'
 			self.ids.start.text = 'Start'
 			Clock.unschedule(self.receive)
 		elif cls == '1':
@@ -91,6 +95,7 @@ class TriggeredCapture(Screen):
 			del self.my_data5[:]
 			del self.my_data6[:]
 			del self.my_data7[:]
+			self.ids.noti.text = 'Cleared'
 			cls = '0'
 
 
@@ -125,6 +130,7 @@ class BasicCapture(Screen):
 		global count
 		try:
 			f, _ = mq.receive(10)
+			self.ids.noti.text = 'Running'
 			f_string = str(f)
 			f_list = f_string.split(',')
 			self.my_data1.append(f_list[0])
@@ -134,6 +140,7 @@ class BasicCapture(Screen):
 			self.my_data6.append(f_list[5])
 			self.my_data7.append(f_list[6])
 		except:
+			self.ids.noti.text = 'Nothing received'
 			pass		
 	def send_parameters(self, params):
 		p = open(writePipe, 'w')
@@ -145,6 +152,7 @@ class BasicCapture(Screen):
 		global cls
 		cls = '0'
 		self.ids.start.text = 'Started capture with filter'
+		self.ids.noti.text = 'Starting capture'
 		src = self.ids.src.text
 		dst = self.ids.dst.text
 		amount = "0"
@@ -158,6 +166,7 @@ class BasicCapture(Screen):
 		global count	
 		if cls == '0':
 			cls = '1'
+			self.ids.noti.text = 'Click Start to Continue or Stop to Clear'
 			self.ids.start.text = 'Start'
 			Clock.unschedule(self.receive)					
 		elif cls == '1':			
@@ -168,6 +177,7 @@ class BasicCapture(Screen):
 			del self.my_data5[:]
 			del self.my_data6[:]
 			del self.my_data7[:]
+			self.ids.noti.text = 'Cleared'
 			cls = '0'
 presentation = Builder.load_file("pishark.kv")						
 class PiSharkApp(App):

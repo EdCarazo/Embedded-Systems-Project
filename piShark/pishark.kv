@@ -210,14 +210,14 @@ ScreenManagement:
 							pos: self.pos
 							size: self.size
 			Label:
+				id: noti
 				size_hint_y: .1
 				canvas.before:
 					Color:
-						rgb: .75,.75,75
+						rgb: .5,.5,5
 					Rectangle:
 						pos: self.pos
 						size: self.size
-				text: root.selected_value
 <TriggeredCapture>:
 	name: 'triggered'
 
@@ -424,6 +424,15 @@ ScreenManagement:
 							pos: self.pos
 							size: self.size
 
+			Label:
+				id: noti
+				size_hint_y: .1
+				canvas.before:
+					Color:
+						rgb: .5,.5,5
+					Rectangle:
+						pos: self.pos
+						size: self.size
 
 
 <TrackingLog>:
