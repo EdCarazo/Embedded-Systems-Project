@@ -210,14 +210,14 @@ ScreenManagement:
 							pos: self.pos
 							size: self.size
 			Label:
+				id: noti
 				size_hint_y: .1
 				canvas.before:
 					Color:
-						rgb: .75,.75,75
+						rgb: .5,.5,5
 					Rectangle:
 						pos: self.pos
 						size: self.size
-				text: root.selected_value
 <TriggeredCapture>:
 	name: 'triggered'
 
@@ -231,24 +231,9 @@ ScreenManagement:
 			orientation: 'vertical'
 			spacing:30
 
-			BoxLayout:
-				orientation: 'vertical'
-				spacing: 5
-
-				TextInput:
-					hint_text: "Start time"
-					multiline: False
-					
-				TextInput:
-					hint_text: "Stop time"
-					multiline: False
-					
-				TextInput:
-					hint_text: "Number of packages"
-					multiline: False
-			BoxLayout:
-				orientation:'vertical'
-				spacing: 10
+			GridLayout:
+				cols: 2
+				spacing: 8
 									
 				ToggleButton:
 					text: "Goose"
@@ -265,9 +250,17 @@ ScreenManagement:
 					group: "g1"
 					on_press:root.protocol3()
 				ToggleButton:
-					text:"TIMESYNC"
+					text:"TS"
 					group: "g1"
 					on_press:root.protocol4()
+			BoxLayout:
+				orientation: 'vertical'
+				spacing: 5
+				size_hint_y: .5
+				TextInput: 
+					id: amount
+					hint_text: "Number of packages"
+					multiline: False
 			BoxLayout:
 				orientation:'vertical'
 				spacing: 10
@@ -431,6 +424,15 @@ ScreenManagement:
 							pos: self.pos
 							size: self.size
 
+			Label:
+				id: noti
+				size_hint_y: .1
+				canvas.before:
+					Color:
+						rgb: .5,.5,5
+					Rectangle:
+						pos: self.pos
+						size: self.size
 
 
 <TrackingLog>:
