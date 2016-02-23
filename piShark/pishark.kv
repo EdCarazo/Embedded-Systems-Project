@@ -98,6 +98,7 @@ ScreenManagement:
 				Button:
 					id:close
 					text: 'Close app'
+					on_press: app.stop()
 							
 			BoxLayout:
 				size_hint_y:.05
@@ -106,7 +107,7 @@ ScreenManagement:
 					text: 'No.'
 				Label:
 					size_hint_x: 1.
-					text: 'Timestamp'
+					text: 'Protocol'
 				Label:
 					size_hint_x: 1.5
 					text: 'Src IP'
@@ -114,7 +115,7 @@ ScreenManagement:
 					size_hint_x: 1.5
 					text: 'Dst IP'
 				Label:
-					text: 'len'
+					text: 'TTL'
 				Label:
 					text: 'Src port'
 				Label:
@@ -311,6 +312,7 @@ ScreenManagement:
 				Button:
 					id:close
 					text: 'Close app'
+					on_press: app.stop()
 
 			BoxLayout:
 				size_hint_y:.05
@@ -319,7 +321,7 @@ ScreenManagement:
 					text: 'No.'
 				Label:
 					size_hint_x: 1.
-					text: 'Timestamp'
+					text: 'Protocol'
 				Label:
 					size_hint_x: 1.5
 					text: 'Src IP'
@@ -327,7 +329,7 @@ ScreenManagement:
 					size_hint_x: 1.5
 					text: 'Dst IP'
 				Label:
-					text: 'len'
+					text: 'TTL'
 				Label:
 					text: 'Src port'
 				Label:
