@@ -154,10 +154,11 @@ def main():
 					if countPackets == sdf:
 						mq.close()
 						mq.unlink()
-						return main()
+						break
+##						return main() ## THIS IS SPAGHETTICODE
 
-					elif countPackets == 0:
-						return
+##					elif countPackets == 0: ## IS THIS REALLY NEEDED?
+						
 
 					try:
 						params = p.read().split(',')
