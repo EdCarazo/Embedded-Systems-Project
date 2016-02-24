@@ -152,9 +152,9 @@ def main():
 									print pipe_message
 
 					if countPackets == sdf:
-						return main()
 						mq.close()
 						mq.unlink()
+						return main()
 
 					elif countPackets == 0:
 						return
