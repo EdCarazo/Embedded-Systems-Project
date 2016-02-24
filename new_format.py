@@ -46,9 +46,12 @@ def main():
 	log_name = "./.log/log_%s.txt" % (time.strftime("%Y%m%d_%H%M%S")) ##contains the log file name and format
 	try:
 		logf = open(log_name, 'w')	##Opens logfile for writing	
-	except OSError:
+	except IOError:
 		print "couldn't open logfile" ##error message if opening logfile fails
-		sys.exit(1)
+		os.mkdir('./.log/', 0755)
+		logf = open(log_name, 'w')	##Opens logfile for writing	
+		
+##		sys.exit(1)
 		
 
 	f = 0
