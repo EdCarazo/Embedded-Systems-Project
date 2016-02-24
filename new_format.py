@@ -50,7 +50,6 @@ def main():
 		print "couldn't open logfile" ##error message if opening logfile fails
 		sys.exit(1)
 		
-	pc = pcap.pcap(name) ##Prepare pcap for specified interface
 
 	f = 0
 
@@ -69,7 +68,7 @@ def main():
 				df = 0
 				sdf = int(params[3]) ##contains the count of packets the software will capture before quiting capture
 
-		## DEBUG PARAMS		
+				## DEBUG PARAMS		
 				##f = 2
 				##s = ""
 				##d = "192.168.69.24"
@@ -83,98 +82,101 @@ def main():
 		
 		print ('Starting capture')
 		mq = posix_ipc.MessageQueue(messageQue) ##creates messageQueue for sending data to the GUI
+		pc = pcap.pcap(name) ##Prepare pcap for specified interface
 
 		while f != 0 or (countPackets < sdf and sdf != 0):
 			try:
 				for ts, pkt in pc:
-						eth = dpkt.ethernet.Ethernet(pkt)					
-						if f == 1 and eth.type == PROTO_GOOSE:
-							goose = eth.data ##Variable containing all the data contained in a packet captured by the interface
-							countPackets +=1
-							protocol = "GOOSE"
-							mac_src = parse_mac(eth.src)
-							mac_dst = parse_mac(eth.dst)
-							pipe_message = "%d,%s,%s,%s,0,0,%d" % (countPackets,protocol,mac_src,mac_dst,len(goose)) ##Formats the message for GUI and logs
-#							pipe_message = "%d,%s,%s,%s,%d,%s" % (countPackets,"{0:.6f}".format(ts), socket.inet_aton(s),socket.inet_aton(d),goose.len, goose.data) ##Formats the message for GUI and logs
-							mq.send(pipe_message) ##Sends the data to the GUI through messageQueue
-							logf.write(pipe_message) ##Writes the data into Logfile
-							logf.write('\n')				
-							print "%s\n" % (pipe_message) ##prints goose packet length in the terminal
+					eth = dpkt.ethernet.Ethernet(pkt)					
+					if f == 1 and eth.type == PROTO_GOOSE:
+						goose = eth.data ##Variable containing all the data contained in a packet captured by the interface
+						countPackets +=1
+						protocol = "GOOSE"
+						mac_src = parse_mac(eth.src)
+						mac_dst = parse_mac(eth.dst)
+						pipe_message = "%d,%s,%s,%s,0,0,%d" % (countPackets,protocol,mac_src,mac_dst,len(goose)) ##Formats the message for GUI and logs
+#						pipe_message = "%d,%s,%s,%s,%d,%s" % (countPackets,"{0:.6f}".format(ts), socket.inet_aton(s),socket.inet_aton(d),goose.len, goose.data) ##Formats the message for GUI and logs
+						mq.send(pipe_message) ##Sends the data to the GUI through messageQueue
+						logf.write(pipe_message) ##Writes the data into Logfile
+						logf.write('\n')				
+						print "%s\n" % (pipe_message) ##prints goose packet length in the terminal
 
 
-						elif f == 2 and eth.type == PROTO_IP4:
-							ip = eth.data
-							if ip.p == dpkt.ip.IP_PROTO_TCP:
-								tcp = ip.data
-								if tcp.sport == 102 or tcp.dport == 102:
-									if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
-										## Build string to pipe										
-										countPackets +=1
-										protocol="MMS"
-										pkt_len=ip.len
-										pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets,protocol, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)
-#										pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets,"{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
-										mq.send(pipe_message)
-										logf.write(pipe_message)
-										logf.write('\n')
-										print "Length:%d\n" % pkt_len
-										print pipe_message
+					elif f == 2 and eth.type == PROTO_IP4:
+						ip = eth.data
+						if ip.p == dpkt.ip.IP_PROTO_TCP:
+							tcp = ip.data
+							if tcp.sport == 102 or tcp.dport == 102:
+								if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
+									## Build string to pipe										
+									countPackets +=1
+									protocol="MMS"
+									pkt_len=ip.len
+									pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets,protocol, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)
+#									pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets,"{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
+									mq.send(pipe_message)
+									logf.write(pipe_message)
+									logf.write('\n')
+									print "Length:%d\n" % pkt_len
+									print pipe_message
 
-						elif f == 3 and eth.type == PROTO_SV:
-							sv = eth.data
-							countPackets +=1
-							protocol="SV"
-							mac_src = parse_mac(eth.src)
-							mac_dst = parse_mac(eth.dst)
-							pipe_message = "%d,%s,%s,%s,0,0,%d" % (countPackets, protocol, mac_src,mac_dst,len(sv))
-#							pipe_message = "%d,%s,%d,%s" % (countPackets, "{0:.6f}".format(ts), sv.len, sv.data)
-							mq.send(pipe_message)
-							logf.write(pipe_message)
-							logf.write('\n')
-							print "SV %d\n" % (sv.len)
+					elif f == 3 and eth.type == PROTO_SV:
+						sv = eth.data
+						countPackets +=1
+						protocol="SV"
+						mac_src = parse_mac(eth.src)
+						mac_dst = parse_mac(eth.dst)
+						pipe_message = "%d,%s,%s,%s,0,0,%d" % (countPackets, protocol, mac_src,mac_dst,len(sv))
+#						pipe_message = "%d,%s,%d,%s" % (countPackets, "{0:.6f}".format(ts), sv.len, sv.data)
+						mq.send(pipe_message)
+						logf.write(pipe_message)
+						logf.write('\n')
+						print "SV %d\n" % (sv.len)
 
 
-						elif f == 4 and (eth.type == PROTO_IP4 or eth.type == PROTO_TIMESYNC):
-							ip = eth.data
-							if ip.p == dpkt.ip.IP_PROTO_UDP:
-								udp = ip.data
-								if udp.sport == 123 or udp.dport == 123 or udp.sport == 319 or udp.dport == 319 or udp.sport == 320 or udp.dport == 320:
-									if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
-										## Build string to pipe										
-										countPackets +=1
-										protocol="TS"
-##										pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets, protocol, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, udp.sport, udp.dport)
-#										pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets, "{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, udp.sport, udp.dport)							
-##										mq.send(pipe_message)
-##										logf.write(pipe_message)
-##										logf.write('\n')
-																
-										print pipe_message
-						if countPackets == sdf:
-							return main()
+					elif f == 4 and (eth.type == PROTO_IP4 or eth.type == PROTO_TIMESYNC):
+						ip = eth.data
+						if ip.p == dpkt.ip.IP_PROTO_UDP:
+							udp = ip.data
+							if udp.sport == 123 or udp.dport == 123 or udp.sport == 319 or udp.dport == 319 or udp.sport == 320 or udp.dport == 320:
+								if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
+									## Build string to pipe										
+									countPackets +=1
+									protocol="TS"
+									pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets, protocol, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, udp.sport, udp.dport)
+#									pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets, "{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, udp.sport, udp.dport)							
+									mq.send(pipe_message)
+									logf.write(pipe_message)
+									logf.write('\n')
+															
+									print pipe_message
+
+					if countPackets == sdf:
+						return main()
+						mq.close()
+						mq.unlink()
+
+					elif countPackets == 0:
+						return
+
+					try:
+						params = p.read().split(',')
+						f = int(params[0])
+						if f == 0:
+							break
 							mq.close()
 							mq.unlink()
-
-						elif countPackets == 0:
-							return
+							pcap.pcap_close(name)
 	
-
-						try:
-							params = p.read().split(',')
-							f = int(params[0])
-							if f == 0:
-								break
-								mq.close()
-								mq.unlink()
-		
-						except:
-							pass
-						
+					except:
+						pass
+					
 			except KeyboardInterrupt:
 				mq.close()
 				mq.unlink()
 				logf.close()
 				readPipe.close()
+				pcap.pcap_close(name)
 				return -1
 		mq.close() ##Close the messageQueue
 	mq.unlink
