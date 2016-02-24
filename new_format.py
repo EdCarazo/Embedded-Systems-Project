@@ -16,10 +16,10 @@ messageQue = "/msg_que" ##variable containing the messageQueue
 
 def parse_mac(mac_string):
 	s = list()
-		for i in range(12/2):
-			s.append(mac_string[i*2:i*2+2])
-		r = ":".join(s)
-		return r
+	for i in range(12/2):
+		s.append(mac_string[i*2:i*2+2])
+	r = ":".join(s)
+	return r
 
 def usage():
 	print >>sys.stderr, 'usage: %s [-i device] [pattern]' % sys.argv[0] ##prints the usage message with necessary arguments listed
@@ -99,8 +99,8 @@ def main():
 						goose = eth.data ##Variable containing all the data contained in a packet captured by the interface
 						countPackets +=1
 						protocol = "GOOSE"
-						mac_src = parse_mac(eth.src)
-						mac_dst = parse_mac(eth.dst)
+						mac_src = parse_mac(binascii.hexlify(eth.src))
+						mac_dst = parse_mac(binascii.hexlify(eth.dst))
 						pipe_message = "%d,%s,%s,%s,0,0,%d" % (countPackets,protocol,mac_src,mac_dst,len(goose)) ##Formats the message for GUI and logs
 #						pipe_message = "%d,%s,%s,%s,%d,%s" % (countPackets,"{0:.6f}".format(ts), socket.inet_aton(s),socket.inet_aton(d),goose.len, goose.data) ##Formats the message for GUI and logs
 						mq.send(pipe_message) ##Sends the data to the GUI through messageQueue
@@ -131,8 +131,8 @@ def main():
 						sv = eth.data
 						countPackets +=1
 						protocol="SV"
-						mac_src = parse_mac(eth.src)
-						mac_dst = parse_mac(eth.dst)
+						mac_src = parse_mac(binascii.hexlify(eth.src))
+						mac_dst = parse_mac(binascii.hexlify(eth.dst))
 						pipe_message = "%d,%s,%s,%s,0,0,%d" % (countPackets, protocol, mac_src,mac_dst,len(sv))
 #						pipe_message = "%d,%s,%d,%s" % (countPackets, "{0:.6f}".format(ts), sv.len, sv.data)
 						mq.send(pipe_message)
