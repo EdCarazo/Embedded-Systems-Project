@@ -63,14 +63,15 @@ def main():
 			## DEBUG print
 			try:	
 				params = p.read().split(',') ##read parameters sent by GUI
-				if len(params[0]) != 0:
-					f = int(params[0]) ##Contains the Protocol number value for selecting protocol to capture
-				if len(params[1]) != 0:
-					s = params[1] ## contains the source IP address for the packages we want to capture
-				if len(params[2]) != 0:
-					d = params[2] ##contains the destination IP address for the packages we want to capture
-				if len(params[3]) != 0:
-					sdf = int(params[3]) ##contains the count of packets the software will capture before quiting capture
+				print params
+#				if len(params[0]) != 0:
+				f = int(params[0]) ##Contains the Protocol number value for selecting protocol to capture
+#				if len(params[1]) != 0:
+				s = params[1] ## contains the source IP address for the packages we want to capture
+#				if len(params[2]) != 0:
+				d = params[2] ##contains the destination IP address for the packages we want to capture
+#				if len(params[3]) != 0:
+				sdf = int(params[3]) ##contains the count of packets the software will capture before quiting capture
 
 				sf = 0
 				df = 0
@@ -101,12 +102,14 @@ def main():
 						protocol = "GOOSE"
 						mac_src = parse_mac(binascii.hexlify(eth.src))
 						mac_dst = parse_mac(binascii.hexlify(eth.dst))
-						pipe_message = "%d,%s,%s,%s,0,0,%d" % (countPackets,protocol,mac_src,mac_dst,len(goose)) ##Formats the message for GUI and logs
+						pipe_message = "%d,%s,%s,%s,%d,0,0" % (countPackets,protocol,mac_src,mac_dst,len(goose)) ##Formats the message for GUI and logs
 #						pipe_message = "%d,%s,%s,%s,%d,%s" % (countPackets,"{0:.6f}".format(ts), socket.inet_aton(s),socket.inet_aton(d),goose.len, goose.data) ##Formats the message for GUI and logs
 						mq.send(pipe_message) ##Sends the data to the GUI through messageQueue
 						logf.write(pipe_message) ##Writes the data into Logfile
 						logf.write('\n')				
 						print "%s\n" % (pipe_message) ##prints goose packet length in the terminal
+						if countPackets == sdf:
+							return main()
 
 
 					elif f == 2 and eth.type == PROTO_IP4:
@@ -126,6 +129,8 @@ def main():
 									logf.write('\n')
 									print "Length:%d\n" % pkt_len
 									print pipe_message
+									if countPackets == sdf:
+										return main() 
 
 					elif f == 3 and eth.type == PROTO_SV:
 						sv = eth.data
@@ -133,12 +138,14 @@ def main():
 						protocol="SV"
 						mac_src = parse_mac(binascii.hexlify(eth.src))
 						mac_dst = parse_mac(binascii.hexlify(eth.dst))
-						pipe_message = "%d,%s,%s,%s,0,0,%d" % (countPackets, protocol, mac_src,mac_dst,len(sv))
+						pipe_message = "%d,%s,%s,%s,%d,0,0" % (countPackets, protocol, mac_src,mac_dst,len(sv))
 #						pipe_message = "%d,%s,%d,%s" % (countPackets, "{0:.6f}".format(ts), sv.len, sv.data)
 						mq.send(pipe_message)
 						logf.write(pipe_message)
 						logf.write('\n')
-						print "SV %d\n" % (sv.len)
+						if countPackets == sdf:
+							return main()						
+#						print "SV %d\n" % (sv.len)
 
 
 					elif f == 4 and (eth.type == PROTO_IP4 or eth.type == PROTO_TIMESYNC):
@@ -155,13 +162,14 @@ def main():
 									mq.send(pipe_message)
 									logf.write(pipe_message)
 									logf.write('\n')
-															
-									print pipe_message
+									if countPackets == sdf:
+										return main()						
+#									print pipe_message
 
-					if countPackets == sdf:
-						mq.close()
-						mq.unlink()
-						break
+#					if countPackets == sdf:
+#						mq.close()
+#						mq.unlink()
+#						break
 ##						return main() ## THIS IS SPAGHETTICODE
 
 ##					elif countPackets == 0: ## IS THIS REALLY NEEDED?
