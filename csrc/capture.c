@@ -1,42 +1,28 @@
 #include <stdio.h>
 #include <pcap.h>
 
+#define selectFilter(x)	filter[x-1]
+
+static const char *filter[4] = {"ether proto 0x88B8", "ether proto 0x900 and tcp port 102", \
+"ether proto 0x88BA", "udp port 123 or udp port 319 or udp port 320 or ether proto 0x88F7"};
+//filter[0] = "ether proto 0x88B8"; // GOOSE
+//filter[2] = "ether proto 0x88BA"; // SV
+//filter[1] = "ether proto 0x800 and tcp port 102";  // MMS
+//filter[3] = "udp port 123 or udp port 319 or udp port 320 or ether proto 0x88F7"; // TS (NTP, PTP)
+
 struct sniff_ethernet {
 	u_char ether_dhost[6];
 	u_char ether_shost[6];
 	u_short ether_type;
 };
 
-char *selectfilter(int f)
-{
-	static const char f1[] = "0x88B8";
-	static const char f2[] = "0x88BA";
-	static const char f3[] = "0x800";
-	static const char f4[] = "0x88F7";
-
-	switch (f)
-	{
-		case 1:
-			return &f1;
-		case 2:
-			return &f2;
-		case 3:
-			return &f3;
-		case 4:
-			return &f4;
-
-		default:
-			return 0;
-	}
-
-}
-
 int main(int argc, char *argv[])
 {
+	int i;
 	pcap_t *capture;
 	char *dev  = "eth0";
 	char *errbuf;
-	char *filter = "tcp port 80";
+//	char *filter = "tcp port 80";
 	struct bpf_program filt;
 
 	struct pcap_pkthdr header;
@@ -52,7 +38,7 @@ int main(int argc, char *argv[])
 	}
 
 //	filter = selectfilter(2);
-	if (pcap_compile(capture, &filt, filter, 0, 0) == -1)
+	if (pcap_compile(capture, &filt, selectFilter(1), 0, 0) == -1)
 	{
 		fprintf(stderr, "Unable to compile filter", filter, errbuf);
 		return (-1);
@@ -64,12 +50,16 @@ int main(int argc, char *argv[])
 		return (-2);
 	}
 
-	packet = pcap_next(capture, &header);
+	for(i = 0; i < 10000; i ++)
+	{
+		packet = pcap_next(capture, &header);
 
-	eth = (struct sniff_ethernet *)(packet);
+		printf("Header length [%u]\n", header.len);
 
-	printf("Header length: [%u], Ethernet src [%s] and dst [%s]\n", header.len, eth->ether_shost, eth->ether_dhost);
+		eth = (struct sniff_ethernet *)(packet);
 
+		printf("Header length: [%u], Ethernet src [%s] and dst [%s]\n", header.len, eth->ether_shost, eth->ether_dhost);
+	}
 	pcap_close(capture);
 
 	return 0;
