@@ -11,8 +11,8 @@ PROTO_SV = 0x88BA ##Ethernet proto value for the Sampled Values packets
 PROTO_IP4 = 0x800 ##Ethernet proto value for IPv4 Packages
 PROTO_TIMESYNC = 0x88F7 ## Ethernet proto value for PTP based timesync over ethernet
 
-readPipe = "/tmp/pipe" ##Variable containing pipe for sending parameters
-messageQue = "/msg_que" ##variable containing the messageQueue
+readPipe = "/tmp/pipe" ##containing pipe for sending parameters
+messageQue = "/msg_que" ##containing the messageQueue
 
 def usage():
 	print >>sys.stderr, 'usage: %s [-i device] [pattern]' % sys.argv[0] ##prints the usage message with necessary arguments listed
@@ -20,11 +20,11 @@ def usage():
 
 def main():
 	opts, args = getopt.getopt(sys.argv[1:], 'i:h') ##fetches command line arguments
-	name = None 
+	name = None ##contains the name of the interface that is used for capture
 	countPackets = 0 ##Variable containing the number of packets we want to capture
 
 	for o, a in opts:
-		if o == '-i': name = a
+		if o == '-i': name = a 
 		else: usage()
 
 	mq = posix_ipc.MessageQueue(messageQue, posix_ipc.O_CREAT) ##Creates the messaque
@@ -44,10 +44,6 @@ def main():
 		sys.exit(1)
 		
 	pc = pcap.pcap(name) ##Prepare pcap for specified interface
-
-##	decode = { pcap.DLT_LOOP:dpkt.loopback.Loopback,
-##			   pcap.DLT_NULL:dpkt.loopback.Loopback,
-##			   pcap.DLT_EN10MB:dpkt.ethernet.Ethernet }[pc.datalink()]
 	f = 0
 
 	print ("Wait parameters")
@@ -79,9 +75,9 @@ def main():
 		
 		print ('Starting capture')
 		mq = posix_ipc.MessageQueue(messageQue) ##creates messageQueue for sending data to the GUI
-		while f != 0 or (countPackets < sdf and sdf != 0):
+		while f != 0:
 			try:
-				for ts, pkt in pc:
+				for ts, pkt in pc or (countPackets < sdf and sdf != 0):
 						eth = dpkt.ethernet.Ethernet(pkt)
 					
 						if f == 1 and eth.type == PROTO_GOOSE:
@@ -102,13 +98,13 @@ def main():
 								if tcp.sport == 102 or tcp.dport == 102:
 									if (len(s) == 0 and len(d) == 0) or (len(s) != 0 and sf == ip.src) or (len(d) != 0 and df == ip.dst): 
 										## Build string to pipe										
-										countPackets +=1
-										pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets,"{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport)							
-										mq.send(pipe_message)
-										logf.write(pipe_message)
-										logf.write('\n')
+										countPackets +=1 ##increment packet counter
+										pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets,"{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport) ##format string for sending through pipe						
+										mq.send(pipe_message) ##Send message through messageQueue
+										logf.write(pipe_message) ##write message into log file
+										logf.write('\n') ##add new line to log
 																
-										print pipe_message
+										print pipe_message ##print out the message in terminal screen
 
 	
 						elif f == 3 and eth.type == PROTO_SV:
@@ -151,7 +147,7 @@ def main():
 				logf.close()
 				readPipe.close()
 				return -1
-		mq.close()
+		mq.close() ##Close the messageQueue
 	mq.unlink
 if __name__ == '__main__':
 	main()
