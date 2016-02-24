@@ -45,18 +45,21 @@ class TriggeredCapture(Screen):
 	def receive(self, *args):
 		global count
 		try:
-			f, _ = mq.receive(10)
+			f, _ = mq.receive(5)
 			f_string = str(f)
 			f_list = f_string.split(',')
 			self.ids.noti.text = 'Running'
 			self.my_data1.append(f_list[0])
+			self.my_data2.append(f_list[1])
 			self.my_data3.append(f_list[2])
 			self.my_data4.append(f_list[3])
 			self.my_data5.append(f_list[4])
 			self.my_data6.append(f_list[5])
 			self.my_data7.append(f_list[6])
+			self.ids.stop.disabled = False
 		except:
-			self.ids.noti.text = 'Nothing received'
+			self.ids.noti.text = 'Nothing received Click Stop to Clear'
+			
 			pass
 	def send_parameters(self, params):
 		p = open(writePipe, 'w')
@@ -66,7 +69,6 @@ class TriggeredCapture(Screen):
 	def start(self):
 		global cls
 		cls = '0'
-		self.ids.start.text = 'Started capture with filter'
 		self.ids.noti.text = 'Starting capture'
 		src = self.ids.src.text
 		dst = self.ids.dst.text
@@ -77,17 +79,64 @@ class TriggeredCapture(Screen):
 		params = protocol+","+src+","+dst+","+amount
 		self.send_parameters(params)
 		print params
+		if protocol == "1":
+			self.ids.mms.disabled = True
+			self.ids.sv.disabled = True
+			self.ids.ts.disabled = True
+			self.ids.amount.disabled = True
+			self.ids.basic.disabled = True
+			self.ids.trigg.disabled = True
+			self.ids.track.disabled = True
+			self.ids.src.disabled = True
+			self.ids.dst.disabled = True
+		if protocol == "2":
+			self.ids.goose.disabled = True
+			self.ids.sv.disabled = True
+			self.ids.ts.disabled = True
+			self.ids.amount.disabled = True
+			self.ids.basic.disabled = True
+			self.ids.trigg.disabled = True
+			self.ids.track.disabled = True
+			self.ids.src.disabled = True
+			self.ids.dst.disabled = True
+
+		if protocol == "3":
+			self.ids.goose.disabled = True
+			self.ids.mms.disabled = True
+			self.ids.ts.disabled = True
+			self.ids.amount.disabled = True
+			self.ids.basic.disabled = True
+			self.ids.trigg.disabled = True
+			self.ids.track.disabled = True
+			self.ids.src.disabled = True
+			self.ids.dst.disabled = True
+
+		if protocol == "4":
+			self.ids.goose.disabled = True
+			self.ids.mms.disabled = True
+			self.ids.sv.disabled = True
+			self.ids.amount.disabled = True
+			self.ids.basic.disabled = True
+			self.ids.trigg.disabled = True
+			self.ids.track.disabled = True
+			self.ids.src.disabled = True
+			self.ids.dst.disabled = True
+
+		self.ids.start.disabled = True
+		self.ids.stop.disabled = False
 		Clock.schedule_interval(self.receive, 1/1000.)
 
 	def stop(self):
 		global cls
 		global count
+#		if cls == '0':
+#			cls = '1'
+#			self.ids.noti.text = 'Click Start to Continue or Stop to Clear'
+#			self.ids.start.text = 'Start'
+#			Clock.unschedule(self.receive)
+#		elif cls == '1':
 		if cls == '0':
-			cls = '1'
-			self.ids.noti.text = 'Click Start to Continue or Stop to Clear'
-			self.ids.start.text = 'Start'
 			Clock.unschedule(self.receive)
-		elif cls == '1':
 			del self.my_data1[:]
 			del self.my_data2[:]
 			del self.my_data3[:]
@@ -96,6 +145,17 @@ class TriggeredCapture(Screen):
 			del self.my_data6[:]
 			del self.my_data7[:]
 			self.ids.noti.text = 'Cleared'
+			self.ids.start.disabled = False
+			self.ids.mms.disabled = False
+			self.ids.sv.disabled = False
+			self.ids.ts.disabled = False
+			self.ids.amount.disabled = False
+			self.ids.basic.disabled = False
+			self.ids.trigg.disabled = False
+			self.ids.track.disabled = False
+			self.ids.src.disabled = False
+			self.ids.dst.disabled = False
+			self.ids.goose.disabled = False
 			cls = '0'
 
 
@@ -134,6 +194,7 @@ class BasicCapture(Screen):
 			f_string = str(f)
 			f_list = f_string.split(',')
 			self.my_data1.append(f_list[0])
+			self.my_data2.append(f_list[1])
 			self.my_data3.append(f_list[2])
 			self.my_data4.append(f_list[3])
 			self.my_data5.append(f_list[4])

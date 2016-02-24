@@ -107,7 +107,7 @@ ScreenManagement:
 					text: 'No.'
 				Label:
 					size_hint_x: 1.
-					text: 'Timestamp'
+					text: 'Protocol'
 				Label:
 					size_hint_x: 1.5
 					text: 'Src IP'
@@ -115,7 +115,7 @@ ScreenManagement:
 					size_hint_x: 1.5
 					text: 'Dst IP'
 				Label:
-					text: 'len'
+					text: 'TTL'
 				Label:
 					text: 'Src port'
 				Label:
@@ -237,20 +237,24 @@ ScreenManagement:
 				spacing: 8
 									
 				ToggleButton:
+					id: goose
 					text: "Goose"
 					group: "g1"
 					on_press:root.protocol1()
 
 				ToggleButton:
+					id: mms
 					text: "MMS"
 					group: "g1"
 					on_press:root.protocol2()
 
 				ToggleButton:
+					id: sv
 					text:"SV"
 					group: "g1"
 					on_press:root.protocol3()
 				ToggleButton:
+					id: ts
 					text:"TS"
 					group: "g1"
 					on_press:root.protocol4()
@@ -284,12 +288,15 @@ ScreenManagement:
 				Label:
 					text: "PiShark 0.0.3"
 				Button:
+					id: basic
 					text: 'Basic Capture'
 					on_release: app.root.current = 'basic'
 				Button:
+					id:	trigg
 					text: 'Triggered Capture'
 					on_release: app.root.current = 'triggered'
 				Button:
+					id: track
 					text: 'Tracking log'
 					on_release: app.root.current = 'tracking'
 
@@ -321,7 +328,7 @@ ScreenManagement:
 					text: 'No.'
 				Label:
 					size_hint_x: 1.
-					text: 'Timestamp'
+					text: 'Protocol'
 				Label:
 					size_hint_x: 1.5
 					text: 'Src IP'
@@ -329,7 +336,7 @@ ScreenManagement:
 					size_hint_x: 1.5
 					text: 'Dst IP'
 				Label:
-					text: 'len'
+					text: 'TTL'
 				Label:
 					text: 'Src port'
 				Label:
