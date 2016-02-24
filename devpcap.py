@@ -5,7 +5,7 @@ import getopt, sys
 import dpkt, pcap
 import posix_ipc
 
-PROTO_GOOSE = 0x88BB
+PROTO_GOOSE = 0x88B8
 PROTO_SV = 0x88BA
 PROTO_IP4 = 0x800
 
@@ -32,8 +32,12 @@ def main():
 	for o, a in opts:
 		if o == '-i': name = a
 		else: usage()
+<<<<<<< HEAD
+	x = 2 #Test for capping MMS
+=======
 	x = 1 #Test for capping MMS
 #	f = open('pcaplog.txt' , 'w')
+>>>>>>> kivy
 	z = apply_filter(x) #contains the filter string
 
 	try:
@@ -57,14 +61,14 @@ def main():
 			# Get pipe parameters as string
 			# "<proto_id>,<src>,<dst>"
 			
-#			pipe_params
+			pipe_message = ""
 			addr_filter = 0			
 #			addr = "192.168.69.150"
 			
 			# here get pipe parameters
 			# 
 			
-			# print hex(eth.type)
+##			print hex(eth.type)
 			
 			if eth.type == PROTO_IP4:
 				ip = eth.data
@@ -82,6 +86,7 @@ def main():
 					mq.send(pipe_message) #write captured packages into the pipe
 			
 			elif eth.type == PROTO_GOOSE:
+				print "GOOSE"
 				goose = eth.data
 				
 				if addr_filter != 0:
@@ -91,7 +96,10 @@ def main():
 				sv = eth.data
 #			print socket.inet_ntoa(ip.src), '\t', socket.inet_ntoa(ip.dst), '\t', tcp.data.id
 
-			mq.send(pipe_message)
+##			f.write(pipe_message)
+##			f.write('\n')
+##			f.close()
+
 	except KeyboardInterrupt:
 		nrecv, ndrop, nifdrop = pc.stats()
 		print '\n%d packets received by filter' % nrecv
