@@ -110,11 +110,7 @@ def main():
 										logf.write('\n')
 										print "Length:%d\n" % pkt_len
 										print pipe_message
-										if countPackets == sdf:
-											return main()
-										elif countPackets == 0:
-											return
-	
+
 						elif f == 3 and eth.type == PROTO_SV:
 							sv = eth.data
 							countPackets +=1
@@ -143,13 +139,23 @@ def main():
 										logf.write('\n')
 																
 										print pipe_message
+						if countPackets == sdf:
+							return main()
+							mq.close()
+							mq.unlink()
 
+						elif countPackets == 0:
+							return
+	
 
 						try:
 							params = p.read().split(',')
 							f = int(params[0])
 							if f == 0:
 								break
+								mq.close()
+								mq.unlink()
+		
 						except:
 							pass
 						
