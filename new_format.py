@@ -14,6 +14,13 @@ PROTO_TIMESYNC = 0x88F7 ## Ethernet proto value for PTP based timesync over ethe
 readPipe = "/tmp/pipe" ##Variable containing pipe for sending parameters
 messageQue = "/msg_que" ##variable containing the messageQueue
 
+def parse_mac(mac_string):
+	s = list()
+		for i in range(12/2):
+			s.append(mac_string[i*2:i*2+2])
+		r = ":".join(s)
+		return r
+
 def usage():
 	print >>sys.stderr, 'usage: %s [-i device] [pattern]' % sys.argv[0] ##prints the usage message with necessary arguments listed
 	sys.exit(1)
@@ -85,12 +92,14 @@ def main():
 							goose = eth.data ##Variable containing all the data contained in a packet captured by the interface
 							countPackets +=1
 							protocol = "GOOSE"
-							pipe_message = "%d,%s,%s,%s,%d" % (countPackets,protocol,socket.inet_ntoa(s),socket.inet_atoa(ip.dst),goose.ttl,goose.len) ##Formats the message for GUI and logs
+							mac_src = parse_mac(eth.src)
+							mac_dst = parse_mac(eth.dst)
+							pipe_message = "%d,%s,%s,%s,0,0,%d" % (countPackets,protocol,mac_src,mac_dst,len(goose)) ##Formats the message for GUI and logs
 #							pipe_message = "%d,%s,%s,%s,%d,%s" % (countPackets,"{0:.6f}".format(ts), socket.inet_aton(s),socket.inet_aton(d),goose.len, goose.data) ##Formats the message for GUI and logs
 							mq.send(pipe_message) ##Sends the data to the GUI through messageQueue
 							logf.write(pipe_message) ##Writes the data into Logfile
 							logf.write('\n')				
-							print "GOOSE %d\n" % (len(goose)) ##prints goose packet length in the terminal
+							print "%s\n" % (pipe_message) ##prints goose packet length in the terminal
 
 
 						elif f == 2 and eth.type == PROTO_IP4:
@@ -115,7 +124,9 @@ def main():
 							sv = eth.data
 							countPackets +=1
 							protocol="SV"
-							pipe_message = "%d,%s,%s,%s,%d" % (countPackets, protocol, socket.inet_ntoa(ip.src),socket.inet_ntoa(ip.dst),ip.ttl)
+							mac_src = parse_mac(eth.src)
+							mac_dst = parse_mac(eth.dst)
+							pipe_message = "%d,%s,%s,%s,0,0,%d" % (countPackets, protocol, mac_src,mac_dst,len(sv))
 #							pipe_message = "%d,%s,%d,%s" % (countPackets, "{0:.6f}".format(ts), sv.len, sv.data)
 							mq.send(pipe_message)
 							logf.write(pipe_message)
@@ -132,11 +143,11 @@ def main():
 										## Build string to pipe										
 										countPackets +=1
 										protocol="TS"
-										pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets, protocol, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, udp.sport, udp.dport)
+##										pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets, protocol, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, udp.sport, udp.dport)
 #										pipe_message = "%d,%s,%s,%s,%d,%d,%d" % (countPackets, "{0:.6f}".format(ts), socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, udp.sport, udp.dport)							
-										mq.send(pipe_message)
-										logf.write(pipe_message)
-										logf.write('\n')
+##										mq.send(pipe_message)
+##										logf.write(pipe_message)
+##										logf.write('\n')
 																
 										print pipe_message
 						if countPackets == sdf:
