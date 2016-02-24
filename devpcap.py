@@ -3,20 +3,22 @@ import binascii
 import socket
 import getopt, sys
 import dpkt, pcap
+import posix_ipc
 
 PROTO_GOOSE = 0x88B8
 PROTO_SV = 0x88BA
 PROTO_IP4 = 0x800
 
-writePipe = "/tmp/pipe1"
-readPipe = "/tmp/pipe2"
+messageQueue = "/msg_que"
+readPipe = "/tmp/pipe"
+mq = posix_ipc.MessageQueue(messageQueue, posix_ipc.O_CREAT)
 
 # 1 = GOOSE, 2 = MMS, 3 = SV
 def apply_filter(x):
     filterer = {
-        1: 'ether proto 0x88B8',
-        2: 'tcp port 102',
-        3: 'ether proto 0x88BA'
+        1: 'tcp port 80',				##MMS
+        2: 'ether proto 0x88B8',		##GOOSE
+        3: 'ether proto 0x88BA'			##SV
     }
     return filterer.get(x, '')
 
@@ -30,11 +32,15 @@ def main():
 	for o, a in opts:
 		if o == '-i': name = a
 		else: usage()
+<<<<<<< HEAD
 	x = 2 #Test for capping MMS
+=======
+	x = 1 #Test for capping MMS
+#	f = open('pcaplog.txt' , 'w')
+>>>>>>> kivy
 	z = apply_filter(x) #contains the filter string
 
 	try:
-		os.mkfifo(writePipe) #create pipes for reading and writing
 		os.mkfifo(readPipe)
 	except OSError:
 		pass
@@ -48,7 +54,7 @@ def main():
 	try:
 		print 'listening on %s: %s' % (pc.name, pc.filter)
 		for ts, pkt in pc:
-			f = open(writePipe, 'w') #tapping into the pipe
+			mq = posix_ipc.MessageQueue(messageQueue)
 			#print ts, `decode(pkt)`
 			eth = dpkt.ethernet.Ethernet(pkt)
 
@@ -77,8 +83,7 @@ def main():
 					tcp = ip.data
 					pipe_message = "%s;%s;%s;%d;%d;%d;%s" % (ts, socket.inet_ntoa(ip.src), socket.inet_ntoa(ip.dst), ip.ttl, tcp.sport, tcp.dport, tcp.data) #format pipe message
 					print pipe_message #print pipe message i terminal				
-					f.write(pipe_message) #write captured packages into the pipe
-					f.write('\n')
+					mq.send(pipe_message) #write captured packages into the pipe
 			
 			elif eth.type == PROTO_GOOSE:
 				print "GOOSE"
@@ -99,6 +104,7 @@ def main():
 		nrecv, ndrop, nifdrop = pc.stats()
 		print '\n%d packets received by filter' % nrecv
 		print '%d packets dropped by kernel' % ndrop
-
+		mq.close()
+		mq.unlink()
 if __name__ == '__main__':
 	main()
