@@ -163,10 +163,10 @@ def main():
 						params = p.read().split(',')
 						f = int(params[0])
 						if f == 0:
-							break
 							mq.close()
 							mq.unlink()
 							pcap.pcap_close(name)
+							break
 	
 					except:
 						pass
