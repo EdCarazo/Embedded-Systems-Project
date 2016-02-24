@@ -108,17 +108,21 @@ class TriggeredCapture(Screen):
 		dst = self.ids.dst.text
 		amount=self.ids.amount.text
 		
-		if self.ids.amount.text=="":
-			amount="0"
+#		if self.ids.amount.text=="":
+#			amount="0"
 			
 		global protocol
 		params = protocol+","+src+","+dst+","+amount
-		self.send_parameters(params)
+#		self.send_parameters(params)
 		
 		print params
 		self.ids.start.disabled = True
 		self.ids.stop.disabled = False
-		Clock.schedule_interval(self.receive, 1/1000.)
+		if self.ids.amount.text==""or protocol == "":
+			self.ids.noti.text = 'No message amount or protocol set'
+		elif self.ids.amount.text!="":
+			Clock.schedule_interval(self.receive, 1/1000.)
+			self.send_parameters(params)
 	def stop(self):
 		global cls
 		global count
