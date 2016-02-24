@@ -52,7 +52,9 @@ def main():
 		
 
 	f = 0
-
+	s = '0'
+	d = '0'
+	sdf = 0
 	print ("Wait parameters")
 
 	p = open(readPipe, 'r') ##Opens the pipe for reading to receive parameters from GUI
@@ -61,12 +63,17 @@ def main():
 			## DEBUG print
 			try:	
 				params = p.read().split(',') ##read parameters sent by GUI
-				f = int(params[0]) ##Contains the Protocol number value for selecting protocol to capture
-				s = params[1] ## contains the source IP address for the packages we want to capture
-				d = params[2] ##contains the destination IP address for the packages we want to capture
+				if len(params[0]) != 0:
+					f = int(params[0]) ##Contains the Protocol number value for selecting protocol to capture
+				if len(params[1]) != 0:
+					s = params[1] ## contains the source IP address for the packages we want to capture
+				if len(params[2]) != 0:
+					d = params[2] ##contains the destination IP address for the packages we want to capture
+				if len(params[3]) != 0:
+					sdf = int(params[3]) ##contains the count of packets the software will capture before quiting capture
+
 				sf = 0
 				df = 0
-				sdf = int(params[3]) ##contains the count of packets the software will capture before quiting capture
 
 				## DEBUG PARAMS		
 				##f = 2
