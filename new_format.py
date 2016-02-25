@@ -46,12 +46,9 @@ def main():
 	log_name = "./.log/log_%s.txt" % (time.strftime("%Y%m%d_%H%M%S")) ##contains the log file name and format
 	try:
 		logf = open(log_name, 'w')	##Opens logfile for writing	
-	except IOError:
+	except OSError:
 		print "couldn't open logfile" ##error message if opening logfile fails
-		os.mkdir('./.log/', 0755)
-		logf = open(log_name, 'w')	##Opens logfile for writing	
-		
-##		sys.exit(1)
+		sys.exit(1)
 		
 
 	f = 0
@@ -94,7 +91,7 @@ def main():
 		print ('Starting capture')
 		mq = posix_ipc.MessageQueue(messageQue) ##creates messageQueue for sending data to the GUI
 		pc = pcap.pcap(name) ##Prepare pcap for specified interface
-
+		os.remove("/tmp/pipe")		
 		while f != 0 or (countPackets < sdf and sdf != 0):
 			try:
 				for ts, pkt in pc:
